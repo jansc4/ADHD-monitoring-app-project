@@ -3,10 +3,10 @@ from jose import JWTError, jwt
 from passlib.context import CryptContext
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, SecurityScopes
-from app.repositories.user_repository import get_user_by_id
+from repositories.user_repository import get_user_by_id
 from bson import ObjectId
-from app.config import SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES, REFRESH_TOKEN_EXPIRE_DAYS
-from app.models import UserInDB
+from config import SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES, REFRESH_TOKEN_EXPIRE_DAYS
+from models.mongo_models import UserInDB
 
 # Ustawiamy scope'y tutaj
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login", scopes={

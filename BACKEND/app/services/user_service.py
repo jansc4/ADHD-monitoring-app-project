@@ -1,51 +1,14 @@
 from bson import ObjectId
 from fastapi import HTTPException, status
-from motor.motor_asyncio import AsyncIOMotorDatabase
 
-from app.models import UserInDB
-from app.auth import (
-    hash_password, verify_password,
-    create_access_token, create_refresh_token,
-    verify_token
-)
-from app.schemas import (
+from models.mongo_models import UserInDB
+
+""" from schemas.pydantic_schemas import (
     UserCreate, TokenResponse, UserResponse,
     UserProfileResponse, UpdateUserProfile
 )
 from BACKEND.app.security import check_email, check_id
 
-
-async def register_user_service(user: UserCreate, db: AsyncIOMotorDatabase) -> UserResponse:
-    await check_email(str(user.email), db)
-    hashed_password = hash_password(user.password)
-    new_user = UserInDB(username=user.username, email=user.email, password=hashed_password)
-    await db.users.insert_one(new_user.model_dump())
-    return UserResponse(username=user.username, email=user.email)
-
-
-async def login_user_service(form_data, db: AsyncIOMotorDatabase) -> TokenResponse:
-    db_user = await db.users.find_one({"email": form_data.username})
-    if not db_user or not verify_password(form_data.password, db_user["password"]):
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
-
-    user_id = str(db_user["_id"])
-    role = db_user.get("role", "user")
-    access_token = create_access_token({"sub": user_id, "scopes": [role]})
-    refresh_token = create_refresh_token({"sub": user_id})
-    return TokenResponse(access_token=access_token, refresh_token=refresh_token, token_type="bearer")
-
-
-async def refresh_token_service(refresh_token: str, db: AsyncIOMotorDatabase) -> TokenResponse:
-    payload = verify_token(refresh_token)
-    if not payload or not payload.get("sub"):
-        raise HTTPException(status_code=401, detail="Invalid refresh token")
-
-    user = await db.users.find_one({"_id": ObjectId(payload["sub"])})
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found")
-
-    access_token = create_access_token({"sub": str(user["_id"]), "scopes": [user["role"]]})
-    return TokenResponse(access_token=access_token, token_type="bearer")
 
 
 async def get_all_profiles_service(db: AsyncIOMotorDatabase):
@@ -97,3 +60,22 @@ async def delete_profile_service(user_id: str, db: AsyncIOMotorDatabase):
         id=user_id,
         role=existing_user["role"]
     )
+
+ """
+def check_role(current_user: dict, required_role: str):
+    """
+    Sprawdza, czy użytkownik posiada wymaganą rolę.
+
+    Args:
+        current_user (dict): Dane użytkownika, który jest aktualnie zalogowany.
+        required_role (str): Rola, którą użytkownik musi posiadać.
+
+    Raises:
+        HTTPException: Jeśli użytkownik nie ma wymaganej roli, zgłasza błąd 403 (Forbidden).
+    """
+    if required_role not in current_user.get("role", []):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDsEN,
+            detail=f"Insufficient permissions. Required role: {required_role}",
+        )
+        

@@ -1,14 +1,14 @@
 from bson import ObjectId
 from fastapi import HTTPException, status
 from motor.motor_asyncio import AsyncIOMotorDatabase
-from app.repositories.user_repository import *
-from app.models import UserInDB
-from app.security import (
+from repositories.user_repository import *
+from models.mongo_models import UserInDB
+from security import (
     hash_password, verify_password,
     create_access_token, create_refresh_token,
     verify_token
 )
-from app.schemas import (
+from schemas.pydantic_schemas import (
     UserCreate, TokenResponse, UserResponse
 )
 
@@ -46,23 +46,7 @@ async def refresh_token_service(refresh_token: str) -> TokenResponse:
     access_token = create_access_token({"sub": str(user["_id"]), "scopes": [user["role"]]})
     return TokenResponse(access_token=access_token, token_type="bearer")
 
-def check_role(current_user: dict, required_role: str):
-    """
-    Sprawdza, czy użytkownik posiada wymaganą rolę.
 
-    Args:
-        current_user (dict): Dane użytkownika, który jest aktualnie zalogowany.
-        required_role (str): Rola, którą użytkownik musi posiadać.
-
-    Raises:
-        HTTPException: Jeśli użytkownik nie ma wymaganej roli, zgłasza błąd 403 (Forbidden).
-    """
-    if required_role not in current_user.get("role", []):
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDsEN,
-            detail=f"Insufficient permissions. Required role: {required_role}",
-        )
-        
         
 async def check_email(required_email: str):
     """

@@ -1,5 +1,5 @@
 from motor.motor_asyncio import AsyncIOMotorClient
-from app.config import MONGO_URL
+from config import MONGO_URL
 
 
 client = None

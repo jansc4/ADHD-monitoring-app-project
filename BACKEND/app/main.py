@@ -1,8 +1,8 @@
 from fastapi import FastAPI
-from app.routers import users
-from app.routers import auth
+from routers import users
+from routers import auth
 from contextlib import asynccontextmanager
-from app.db.mongo import connect_db
+from db.mongo import connect_db
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
