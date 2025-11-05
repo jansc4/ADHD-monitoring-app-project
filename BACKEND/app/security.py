@@ -3,10 +3,12 @@ from jose import JWTError, jwt
 from passlib.context import CryptContext
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, SecurityScopes
-from repositories.user_repository import get_user_by_id
+from app.repositories.user_repository import get_user_by_id
+from app.db.mongo import get_db
 from bson import ObjectId
-from config import SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES, REFRESH_TOKEN_EXPIRE_DAYS
-from models.mongo_models import UserInDB
+from app.config import SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES, REFRESH_TOKEN_EXPIRE_DAYS
+from app.models.mongo_models import UserInDB
+from motor.motor_asyncio import AsyncIOMotorDatabase
 
 # Ustawiamy scope'y tutaj
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login", scopes={
@@ -88,45 +90,40 @@ def verify_token(token: str):
     except JWTError:
         return None
 
-async def get_current_user(security_scopes: SecurityScopes, token: str = Depends(oauth2_scheme)):
+
+
+async def get_current_user(
+    token: str = Depends(oauth2_scheme),
+    db: AsyncIOMotorDatabase = Depends(get_db)
+) -> UserInDB:
     """
-    Pobiera aktualnego użytkownika na podstawie tokenu i sprawdza jego uprawnienia.
-
-    Args:
-        security_scopes (SecurityScopes): Scopes wymagane do dostępu do zasobów.
-        token (str): Token użytkownika.
-        
-
-    Raises:
-        HTTPException: Jeśli token jest nieprawidłowy, użytkownik nie istnieje lub brakuje uprawnień.
-
-    Returns:
-        dict: Dane użytkownika.
+    Pobiera aktualnego użytkownika z bazy na podstawie tokenu JWT.
     """
+
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Could not validate credentials",
-        headers={"WWW-Authenticate": f"Bearer scope='{security_scopes.scope_str}'"},
+        detail="Nieprawidłowy token uwierzytelniający",
+        headers={"WWW-Authenticate": "Bearer"},
     )
+
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         user_id: str = payload.get("sub")
-        token_scopes = payload.get("scopes", [])
         if user_id is None:
             raise credentials_exception
     except JWTError:
         raise credentials_exception
 
-    user = await get_user_by_id(user_id)
+    user = await get_user_by_id(user_id, db)
     if user is None:
         raise credentials_exception
 
-    for scope in security_scopes.scopes:
-        if scope not in token_scopes:
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="Not enough permissions",
-            )
-    return UserInDB(id=str(user["_id"]), username=user["username"],
-        email=user["email"],  role=user["role"], password=user["password"])
+    return UserInDB(
+        id=str(user["_id"]),
+        username=user["username"],
+        email=user["email"],
+        role=user["role"],
+        password=user["password"],
+    )
+
 

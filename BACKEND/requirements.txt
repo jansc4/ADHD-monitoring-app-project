@@ -4,6 +4,7 @@ pymongo[srv]
 motor
 minio
 email-validator
-passlib[bcrypt]
+bcrypt==3.2.2
+passlib
 python-jose
 python-multipart

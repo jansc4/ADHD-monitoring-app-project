@@ -1,8 +1,8 @@
-version: '3.9'
+version: '3.8'
 
 services:
   backend:
-    build: .BACKEND
+    build: .
     depends_on:
       - mongo
     env_file:

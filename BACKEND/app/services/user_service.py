@@ -1,9 +1,9 @@
 from bson import ObjectId
 from fastapi import HTTPException, status
 
-from models.mongo_models import UserInDB
+from app.models.mongo_models import UserInDB
 
-""" from schemas.pydantic_schemas import (
+""" from app.schemas.pydantic_schemas import (
     UserCreate, TokenResponse, UserResponse,
     UserProfileResponse, UpdateUserProfile
 )

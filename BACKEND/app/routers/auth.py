@@ -1,10 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
-from schemas.pydantic_schemas import (
+from app.schemas.pydantic_schemas import (
     UserCreate, UserResponse, TokenResponse
 )
 
-from services.auth_service import (
+from app.services.auth_service import (
     register_user_service,
     login_user_service,
     refresh_token_service,

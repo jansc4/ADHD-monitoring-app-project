@@ -1,4 +1,4 @@
-FROM python:3.12-alpine
+FROM python:3.12
 LABEL authors="jan"
 
 SHELL ["/bin/sh", "-c"]
@@ -10,7 +10,7 @@ COPY ./app /app
 COPY requirements.txt /app
 
 # Instalacja zależności
-RUN pip install --no-cache-dir -r /app/requirements.txt
+RUN pip install -r /app/requirements.txt
 
 # Ustawienie katalogu roboczego
 #WORKDIR /app

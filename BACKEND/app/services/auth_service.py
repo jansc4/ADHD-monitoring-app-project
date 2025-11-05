@@ -1,29 +1,32 @@
 from bson import ObjectId
 from fastapi import HTTPException, status
 from motor.motor_asyncio import AsyncIOMotorDatabase
-from repositories.user_repository import *
-from models.mongo_models import UserInDB
-from security import (
+from app.db.mongo import get_db
+from app.repositories.user_repository import *
+from app.models.mongo_models import UserInDB
+from app.security import (
     hash_password, verify_password,
     create_access_token, create_refresh_token,
     verify_token
 )
-from schemas.pydantic_schemas import (
+from app.schemas.pydantic_schemas import (
     UserCreate, TokenResponse, UserResponse
 )
 
 
 
 async def register_user_service(user: UserCreate) -> UserResponse:
-    await check_email(str(user.email))
+    db = await get_db()
+    await check_email(str(user.email), db)
     hashed_password = hash_password(user.password)
     new_user = UserInDB(username=user.username, email=user.email, password=hashed_password)
-    await create_user(new_user.model_dump())
+    await create_user(new_user.model_dump(), db)
     return UserResponse(username=user.username, email=user.email)
 
 
 async def login_user_service(form_data) -> TokenResponse:
-    db_user = await get_user_by_email(form_data.username)
+    db = await get_db()
+    db_user = await get_user_by_email(form_data.username, db)
     if not db_user or not verify_password(form_data.password, db_user["password"]):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
 
@@ -48,7 +51,7 @@ async def refresh_token_service(refresh_token: str) -> TokenResponse:
 
 
         
-async def check_email(required_email: str):
+async def check_email(required_email: str, db: AsyncIOMotorDatabase):
     """
     Sprawdza, czy email jest już używany przez innego użytkownika w bazie danych.
 
@@ -60,11 +63,11 @@ async def check_email(required_email: str):
         HTTPException: Jeśli email jest już w użyciu, zgłasza błąd 400 (Bad Request).
     """
 
-    existing_user = await get_user_by_email(required_email)
+    existing_user = await get_user_by_email(required_email, db)
     if existing_user:
         raise HTTPException(status_code=400, detail="Email already in use")
 
-async def check_id(required_id: str):
+async def check_id(required_id: str, db: AsyncIOMotorDatabase):
     """
     Sprawdza, czy użytkownik o podanym identyfikatorze istnieje w bazie danych.
 
@@ -78,7 +81,7 @@ async def check_id(required_id: str):
     Raises:
         HTTPException: Jeśli użytkownik o danym ID nie istnieje, zgłasza błąd 404 (Not Found).
     """
-    existing_user = await get_user_by_id(required_id)
+    existing_user = await get_user_by_id(required_id, db)
     if not existing_user:
         raise HTTPException(status_code=404, detail="User not found")
     return existing_user

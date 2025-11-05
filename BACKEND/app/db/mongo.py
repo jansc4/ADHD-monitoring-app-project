@@ -1,6 +1,5 @@
 from motor.motor_asyncio import AsyncIOMotorClient
-from config import MONGO_URL
-
+from app.config import MONGO_URL
 
 client = None
 db = None
@@ -9,7 +8,7 @@ async def connect_db():
     global client, db
     client = AsyncIOMotorClient(MONGO_URL)
     db = client["adhd_app"]
-    print(f"🔗 Połączono z bazą: {db}")  # Debugging
+    print(f"🔗 Połączono z bazą: {db}")
     try:
         if "users" not in await db.list_collection_names():
             await db.create_collection("users")
