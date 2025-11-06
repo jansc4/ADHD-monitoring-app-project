@@ -1,5 +1,7 @@
 from fastapi import FastAPI
-from app.routers import users, auth
+from app.routers import admin, doctors
+from app.routers import patients
+from app.routers import auth
 from contextlib import asynccontextmanager
 from app.db.mongo import connect_db
 
@@ -12,8 +14,10 @@ async def lifespan(app: FastAPI):
 app = FastAPI(lifespan=lifespan)
 
 # Rejestrowanie endpointów użytkowników
-app.include_router(users.router)
+app.include_router(patients.router)
 app.include_router(auth.router)
+app.include_router(doctors.router)
+app.include_router(admin.router)
 
 @app.get("/")
 def read_root():

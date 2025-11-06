@@ -1,3 +1,4 @@
+from enum import Enum
 from typing import Optional, Literal, List
 from pydantic import BaseModel, EmailStr, Field
 
@@ -20,3 +21,8 @@ class TokenResponse(BaseModel):
     access_token: str
     refresh_token: Optional[str] = ""
     token_type: str
+    
+class UserRole(str, Enum):
+    ADMIN = "admin"
+    DOCTOR = "doctor"
+    PATIENT = "patient"

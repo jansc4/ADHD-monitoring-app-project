@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+from typing import List
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 from fastapi import Depends, HTTPException, status
@@ -9,6 +10,7 @@ from bson import ObjectId
 from app.config import SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES, REFRESH_TOKEN_EXPIRE_DAYS
 from app.models.mongo_models import UserInDB
 from motor.motor_asyncio import AsyncIOMotorDatabase
+from app.schemas.pydantic_schemas import UserRole
 
 # Ustawiamy scope'y tutaj
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login", scopes={
@@ -109,6 +111,7 @@ async def get_current_user(
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         user_id: str = payload.get("sub")
+        #role: str = payload.get("role")
         if user_id is None:
             raise credentials_exception
     except JWTError:
@@ -125,5 +128,16 @@ async def get_current_user(
         role=user["role"],
         password=user["password"],
     )
+
+
+def require_role(allowed_roles: List[UserRole]):
+    async def role_checker(current_user: UserInDB = Depends(get_current_user)):
+        if current_user.role not in [role.value for role in allowed_roles]:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail=f"Access denied: {allowed_roles} role required"
+            )
+        return current_user
+    return role_checker
 
 

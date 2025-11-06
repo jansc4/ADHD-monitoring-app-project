@@ -10,7 +10,7 @@ from app.services.auth_service import (
     refresh_token_service,
 )
 
-router = APIRouter()
+router = APIRouter(tags=["auth"])
 
 @router.post("/register", response_model=UserResponse)
 async def register_user(user: UserCreate):

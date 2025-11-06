@@ -31,8 +31,8 @@ async def login_user_service(form_data) -> TokenResponse:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
 
     user_id = str(db_user["_id"])
-    role = db_user.get("role", "user")
-    access_token = create_access_token({"sub": user_id, "scopes": [role]})
+    role = db_user.get("role", "patient")
+    access_token = create_access_token({"sub": user_id, "role": role})
     refresh_token = create_refresh_token({"sub": user_id})
     return TokenResponse(access_token=access_token, refresh_token=refresh_token, token_type="bearer")
 
