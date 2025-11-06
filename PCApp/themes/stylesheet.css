@@ -1,0 +1,135 @@
+QWidget {{
+    background-color: {main_qwidget_background};
+    color: {main_qwidget_colour};
+    font-family: {font_family}, "Arial", "sans-serif";
+    font-size: {font_size};
+}}
+
+#stackedWidget {{
+    border-bottom: 1px solid {main_titleBar_border_bottom};
+}}
+
+/* Główne layouty */
+#centralWidget {{
+    border: 3px solid {main_titleBar_border_bottom};
+    border-radius: 8px;
+}}
+
+/* Pasek tytułowy */
+#titleBar {{
+    background-color: {main_titleBar_background};
+    border-bottom: 1px solid {main_titleBar_border_bottom};
+}}
+
+#titleLabel {{
+    font-size: 12px;
+    font-weight: bold;
+    color: {main_titleLabel_color};
+    background: transparent;
+}}
+
+/* Przyciski paska tytułowego */
+#fullBtn, #minBtn, #maxBtn, #closeBtn {{
+    background: {main_btn_background};
+    border: {main_btn_border};
+    border-radius: 4px;
+}}
+
+#fullBtn:hover, #minBtn:hover, #maxBtn:hover, #closeBtn:hover {{
+    background: {main_btn_hover_background};
+}}
+
+/* Przycisk Add / Show */
+#addBtn, #showBtn, #settingsBtn {{
+    background: {main_btn_background};
+    border: {main_btn_border};
+    border-radius: 6px;
+    padding: 6px 10px;
+    color: {main_btn_text_color};
+}}
+
+/* Aktywne przyciski */
+#addBtn[active="true"], #showBtn[active="true"], #settingsBtn[active="true"] {{
+    background-color: {main_btn_active_color};
+    border: none;
+    border-radius: 8px;
+}}
+
+#addBtn:hover, #showBtn:hover, #settingsBtn:hover {{
+    background: {main_btn_hover_background};
+}}
+
+/* Settings Page */
+#settings-page {{
+    background-color: {main_qwidget_background};
+    color: {main_qwidget_colour};
+    padding: 15px;
+}}
+
+/* Formularz etykiet */
+#settings-page QLabel {{
+    font-size: {font_size};
+    font-weight: normal;
+}}
+
+/* Listy wyboru */
+#settings-page QComboBox {{
+    background-color: {main_btn_background};
+    border: 1px solid {main_btn_border};
+    border-radius: 4px;
+    padding: 4px 8px;
+    color: {main_btn_text_color};
+}}
+
+/* Przycisk zapisu */
+#settings-page QPushButton {{
+    background-color: {main_btn_background};
+    border: {main_btn_border};
+    border-radius: 6px;
+    padding: 6px 12px;
+    color: {main_btn_text_color};
+}}
+
+#settings-page QPushButton:hover {{
+    background-color: {main_btn_hover_background};
+}}
+
+/* Add Page */
+#add-page QLineEdit, #add-page QTextEdit {{
+    background-color: {main_btn_background};
+    color: {main_btn_text_color};
+    border: 1px solid {main_btn_border};
+    border-radius: 4px;
+    padding: 4px 6px;
+}}
+
+#add-page QLineEdit:focus, #add-page QTextEdit:focus {{
+    border: 1px solid {main_btn_hover_background};
+}}
+
+#add-page QLabel {{
+    font-size: {font_size};
+    color: {main_qwidget_colour};
+}}
+
+/* Przycisk Add Page */
+#add-page QPushButton {{
+    background-color: {main_btn_background};
+    border: {main_btn_border};
+    border-radius: 6px;
+    padding: 6px 12px;
+    color: {main_btn_text_color};
+}}
+
+#add-page QPushButton:hover {{
+    background-color: {main_btn_hover_background};
+}}
+
+/* Lista tagów */
+#add-page QListWidget {{
+    background-color: {main_btn_background};
+    border: 1px solid {main_btn_border};
+    border-radius: 4px;
+    padding: 4px;
+    color: {main_btn_text_color};
+}}

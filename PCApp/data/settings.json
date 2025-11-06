@@ -1,0 +1,39 @@
+{
+    "font_family": "Segoe UI",
+    "font_families": [
+        "Arial",
+        "Calibri",
+        "NewTimesRoman",
+        "Segoe UI"
+    ],
+    "font_size": 14,
+    "font_sizes": [
+        12,
+        14,
+        16,
+        18
+    ],
+    "theme": "dark",
+    "themes": [
+        "light",
+        "dark"
+    ],
+    "language": "lang_pl",
+    "languages": [
+        "lang_en",
+        "lang_pl"
+    ],
+    "font_family_list": [
+        "Arial",
+        "Calibri",
+        "NewTimesRoman",
+        "Segoe UI"
+    ],
+    "font_seizes": [
+        12,
+        14,
+        16,
+        18
+    ],
+    "api_url": "http://localhost:8000/api"
+}

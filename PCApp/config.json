@@ -1,0 +1,18 @@
+{
+  "api": {
+    "base_url": "http://localhost:8000",
+    "timeout": 30,
+    "retry_attempts": 3
+  },
+  "app": {
+    "window_width": 900,
+    "window_height": 700,
+    "window_x": 100,
+    "window_y": 100
+  },
+  "features": {
+    "auto_login": false,
+    "remember_credentials": false,
+    "splash_screen": false
+  }
+}

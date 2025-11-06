@@ -1,0 +1,15 @@
+{
+  "main_qwidget_background": "#121212",
+  "main_qwidget_colour": "#e0e0e0",
+
+  "main_titleBar_background": "#121212",
+  "main_titleBar_border_bottom": "#1e5128",
+  "main_titleLabel_color": "#ffffff",
+
+  "main_btn_background": "transparent",
+  "main_btn_border": "none",
+  "main_btn_hover_background": "#1e5128",
+  "main_btn_active_color": "#1b5e20",
+  "main_btn_text_color": "#388e3c",
+  "icons": "#ffffff"
+}
