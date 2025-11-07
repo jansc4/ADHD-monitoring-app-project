@@ -33,14 +33,14 @@ class SettingsDialog(QDialog):
         
     def _setup_window(self):
         """Konfiguruje właściwości okna."""
-        self.setWindowTitle(self.strings.get("settings_title", "Settings"))
+        self.setWindowTitle(self.strings.get("settings_title") or "Settings")
         self.setWindowFlags(
             Qt.WindowType.Dialog | 
             Qt.WindowType.WindowStaysOnTopHint |
             Qt.WindowType.FramelessWindowHint
         )
         self.setModal(False)  # Pozwala na interakcję z głównym oknem
-        self.setFixedSize(350, 250)
+        self.setFixedSize(450, 250)
         
     def _setup_ui(self):
         """Tworzy interfejs użytkownika."""
@@ -49,7 +49,7 @@ class SettingsDialog(QDialog):
         layout.setSpacing(15)
         
         # Nagłówek
-        header = QLabel(self.strings.get("settings_title", "Settings"))
+        header = QLabel(self.strings.get("settings_title") or "Settings")
         header.setObjectName("settingsHeader")
         header.setAlignment(Qt.AlignmentFlag.AlignCenter)
         header.setStyleSheet("font-size: 18px; font-weight: bold; padding: 10px;")
@@ -77,8 +77,8 @@ class SettingsDialog(QDialog):
         widget = QWidget()
         layout = QVBoxLayout()
         layout.setSpacing(8)
-        
-        label = QLabel(self.strings.get("settings_language", "Language:"))
+
+        label = QLabel(self.strings.get("settings_language") or "Language:")
         label.setObjectName("settingsLabel")
         
         self.language_combo = QComboBox()
@@ -87,7 +87,7 @@ class SettingsDialog(QDialog):
         self.language_combo.addItem("Polski", "pl")
         
         # Ustaw aktualny język
-        current_lang = self.settings.get("language", "en")
+        current_lang = self.settings.get("language")
         index = self.language_combo.findData(current_lang)
         if index >= 0:
             self.language_combo.setCurrentIndex(index)
@@ -103,23 +103,23 @@ class SettingsDialog(QDialog):
         widget = QWidget()
         layout = QVBoxLayout()
         layout.setSpacing(8)
-        
-        label = QLabel(self.strings.get("settings_theme", "Theme:"))
+
+        label = QLabel(self.strings.get("settings_theme") or "Theme:")
         label.setObjectName("settingsLabel")
         
         self.theme_combo = QComboBox()
         self.theme_combo.setObjectName("themeCombo")
         self.theme_combo.addItem(
-            self.strings.get("theme_dark", "Dark"), 
+            self.strings.get("theme_dark") or "Dark",
             "dark"
         )
         self.theme_combo.addItem(
-            self.strings.get("theme_light", "Light"), 
+            self.strings.get("theme_light") or "Light",
             "light"
         )
         
         # Ustaw aktualny motyw
-        current_theme = self.settings.get("theme", "dark")
+        current_theme = self.settings.get("theme")
         index = self.theme_combo.findData(current_theme)
         if index >= 0:
             self.theme_combo.setCurrentIndex(index)
@@ -136,12 +136,12 @@ class SettingsDialog(QDialog):
         layout.setSpacing(10)
         
         # Przycisk Zastosuj
-        self.apply_btn = QPushButton(self.strings.get("btn_apply", "Apply"))
+        self.apply_btn = QPushButton(self.strings.get("btn_apply") or "Apply")
         self.apply_btn.setObjectName("applyBtn")
         self.apply_btn.clicked.connect(self._apply_settings)
         
         # Przycisk Zamknij
-        self.close_btn = QPushButton(self.strings.get("btn_close", "Close"))
+        self.close_btn = QPushButton(self.strings.get("btn_close") or "Close")
         self.close_btn.setObjectName("closeBtn")
         self.close_btn.clicked.connect(self.close)
         
@@ -170,15 +170,15 @@ class SettingsDialog(QDialog):
         
         # Jeśli były zmiany, zapisz i powiadom
         if changed:
-            self.settings.save()
+            self.settings.save_settings()
             self.settings_changed.emit()
     
     def rerender_theme(self):
         """Odświeża interfejs po zmianie motywu/języka."""
-        self.setWindowTitle(self.strings.get("settings_title", "Settings"))
+        self.setWindowTitle(self.strings.get("settings_title") or "Settings")
         
         # Aktualizuj teksty (możesz to rozszerzyć dla wszystkich elementów)
         if hasattr(self, 'apply_btn'):
-            self.apply_btn.setText(self.strings.get("btn_apply", "Apply"))
+            self.apply_btn.setText(self.strings.get("btn_apply") or "Apply")
         if hasattr(self, 'close_btn'):
-            self.close_btn.setText(self.strings.get("btn_close", "Close"))
+            self.close_btn.setText(self.strings.get("btn_close") or "Close")

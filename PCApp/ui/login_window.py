@@ -46,26 +46,26 @@ class LoginPage(QWidget):
         form_layout.setSpacing(20)
         
         # Nagłówek
-        title = QLabel(self.strings.get("login_title", "Sign In"))
+        title = QLabel(self.strings.get("login_title") or "Sign In")
         title.setObjectName("loginTitle")
         title.setAlignment(Qt.AlignmentFlag.AlignCenter)
         title.setStyleSheet("font-size: 24px; font-weight: bold;")
         title.trans_key = "login_title"
         
         # Pole email
-        email_label = QLabel(self.strings.get("login_email", "Email:"))
+        email_label = QLabel(self.strings.get("login_email") or "Email:")
         email_label.setObjectName("loginLabel")
         email_label.trans_key = "login_email"
         
         self.email_input = QLineEdit()
         self.email_input.setObjectName("loginInput")
         self.email_input.setPlaceholderText(
-            self.strings.get("login_email_placeholder", "Enter your email")
+            self.strings.get("login_email_placeholder") or "Enter your email"
         )
         self.email_input.trans_placeholder_key = "login_email_placeholder"
         
         # Pole hasło
-        password_label = QLabel(self.strings.get("login_password", "Password:"))
+        password_label = QLabel(self.strings.get("login_password") or "Password:")
         password_label.setObjectName("loginLabel")
         password_label.trans_key = "login_password"
         
@@ -73,7 +73,7 @@ class LoginPage(QWidget):
         self.password_input.setObjectName("loginInput")
         self.password_input.setEchoMode(QLineEdit.EchoMode.Password)
         self.password_input.setPlaceholderText(
-            self.strings.get("login_password_placeholder", "Enter your password")
+            self.strings.get("login_password_placeholder") or "Enter your password"
         )
         self.password_input.trans_placeholder_key = "login_password_placeholder"
         
@@ -81,7 +81,7 @@ class LoginPage(QWidget):
         self.password_input.returnPressed.connect(self._handle_login)
         
         # Przycisk logowania
-        self.login_btn = QPushButton(self.strings.get("login_button", "Sign In"))
+        self.login_btn = QPushButton(self.strings.get("login_button") or "Sign In")
         self.login_btn.setObjectName("loginButton")
         self.login_btn.trans_key = "login_button"
         self.login_btn.setFixedHeight(40)
@@ -91,7 +91,7 @@ class LoginPage(QWidget):
         self.loading_label = QLabel()
         self.loading_label.setObjectName("loadingLabel")
         self.loading_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.loading_movie = QMovie("resources/animation/loading.gif")
+        self.loading_movie = QMovie("PCApp/resources/animation/loading.gif")
         self.loading_label.setMovie(self.loading_movie)
         self.loading_label.hide()
         
@@ -126,11 +126,11 @@ class LoginPage(QWidget):
         
         # Walidacja
         if not email:
-            self._show_error(self.strings.get("error_email_required", "Email is required"))
+            self._show_error(self.strings.get("error_email_required") or "Email is required")
             return
         
         if not password:
-            self._show_error(self.strings.get("error_password_required", "Password is required"))
+            self._show_error(self.strings.get("error_password_required") or "Password is required")
             return
         
         # Rozpocznij logowanie
@@ -151,8 +151,8 @@ class LoginPage(QWidget):
             self.login_successful.emit(user_data)
             
             # Opcjonalnie: wyświetl sukces
-            self._show_success(self.strings.get("login_success", "Login successful!"))
-            
+            self._show_success(self.strings.get("login_success") or "Login successful!")
+
         except Exception as e:
             self._set_loading(False)
             error_msg = str(e)

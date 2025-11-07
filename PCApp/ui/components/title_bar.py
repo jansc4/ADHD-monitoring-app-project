@@ -49,7 +49,7 @@ class TitleBar(QWidget):
         self.btn_settings = self._create_button(
             name="settingsTitleBtn",
             size=30,
-            icon_path="resources/icons/alt-cog-svgrepo-com.svg",
+            icon_path="PCApp/resources/icons/alt-cog-svgrepo-com.svg",
             icon_size=24,
             callback=self.settings_clicked.emit,
             tooltip=self.strings.get("btn_settings")
@@ -66,7 +66,7 @@ class TitleBar(QWidget):
         self.btn_fullscreen = self._create_button(
             name="fullBtn",
             size=30,
-            icon_path="resources/icons/alt-expand-svgrepo-com.svg",
+            icon_path="PCApp/resources/icons/alt-expand-svgrepo-com.svg",
             icon_size=24,
             callback=self.fullscreen_clicked.emit,
             tooltip=self.strings.get("btn_full")
@@ -76,7 +76,7 @@ class TitleBar(QWidget):
         self.btn_minimize = self._create_button(
             name="minBtn",
             size=30,
-            icon_path="resources/icons/alt-minus-window-svgrepo-com.svg",
+            icon_path="PCApp/resources/icons/alt-minus-window-svgrepo-com.svg",
             icon_size=24,
             callback=self.minimize_clicked.emit,
             tooltip=self.strings.get("btn_min")
@@ -86,7 +86,7 @@ class TitleBar(QWidget):
         self.btn_maximize = self._create_button(
             name="maxBtn",
             size=30,
-            icon_path="resources/icons/plus-window-svgrepo-com.svg",
+            icon_path="PCApp/resources/icons/plus-window-svgrepo-com.svg",
             icon_size=24,
             callback=self.maximize_clicked.emit,
             tooltip=self.strings.get("btn_max")
@@ -96,7 +96,7 @@ class TitleBar(QWidget):
         self.btn_close = self._create_button(
             name="closeBtn",
             size=30,
-            icon_path="resources/icons/standby-svgrepo-com.svg",
+            icon_path="PCApp/resources/icons/standby-svgrepo-com.svg",
             icon_size=24,
             callback=self.close_clicked.emit,
             tooltip=self.strings.get("action_quit")

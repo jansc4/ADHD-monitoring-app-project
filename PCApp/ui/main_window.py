@@ -13,6 +13,8 @@ from customization_manager.theme_manager import ThemeManager
 from ui.components import TitleBar, WindowResizeHandler
 from ui.settings_dialog import SettingsDialog
 from ui.login_window import LoginPage
+from pathlib import Path
+import sys
 
 
 class MainWindow(QMainWindow):
@@ -60,9 +62,8 @@ class MainWindow(QMainWindow):
         self.strings = StringsManager(self.settings.get("language"))
         self.theme = ThemeManager(self.settings, self.strings)
         
-        # Ikona aplikacji
         self.setWindowIcon(self.theme.colored_svg_icon(
-            path="resources/icons/crate-svgrepo-com.svg",
+            path=str("PCApp/resources/icons/image-svgrepo-com.svg"),
             color_key="highlight",
             size=256
         ))
@@ -84,19 +85,19 @@ class MainWindow(QMainWindow):
     def _setup_tray_icon(self):
         """Konfiguruje ikonę w system tray."""
         self.tray_icon = QSystemTrayIcon(self)
-        self.icon = QIcon("resources/icons/crate-svgrepo-com.svg")
+        self.icon = QIcon("PCApp/resources/icons/image-svgrepo-com.svg")  # tutaj placeholder ikony aplikacji
         self.tray_icon.setIcon(self.icon)
-        self.tray_icon.setToolTip(self.strings.get("tooltip_app", "Focusly"))
+        self.tray_icon.setToolTip(self.strings.get("tooltip_app") or "Focusly")
         self.tray_icon.trans_tooltip_key = "tooltip_app"
         
         # Menu tray
         tray_menu = QMenu(self)
-        
-        restore_action = QAction(self.strings.get("action_restore", "Restore"), self)
+
+        restore_action = QAction(self.strings.get("action_restore") or "Restore", self)
         restore_action.trans_key = "action_restore"
         restore_action.triggered.connect(self.show_normal_from_tray)
-        
-        quit_action = QAction(self.strings.get("action_quit", "Quit"), self)
+
+        quit_action = QAction(self.strings.get("action_quit") or "Quit", self)
         quit_action.trans_key = "action_quit"
         quit_action.triggered.connect(self.close)
         
