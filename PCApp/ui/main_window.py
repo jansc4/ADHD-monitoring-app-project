@@ -15,7 +15,7 @@ from ui.settings_dialog import SettingsDialog
 from ui.login_window import LoginPage
 from pathlib import Path
 import sys
-
+from api_client import APIClient
 
 class MainWindow(QMainWindow):
     """
@@ -28,15 +28,14 @@ class MainWindow(QMainWindow):
     - Zmianą rozmiaru okna bez ramki
     """
     
-    def __init__(self, api_client):
+    def __init__(self):
         """
         Args:
             api_client: Globalny klient API do komunikacji z backendem
         """
         super().__init__()
         
-        # Globalny api_client
-        self.api_client = api_client
+        
         
         # Konfiguracja okna
         self._setup_window()
@@ -61,9 +60,11 @@ class MainWindow(QMainWindow):
         self.settings = SettingsManager()
         self.strings = StringsManager(self.settings.get("language"))
         self.theme = ThemeManager(self.settings, self.strings)
+        # Globalny api_client
+        self.api_client = APIClient(base_url=self.settings.get("api_url"))
         
         self.setWindowIcon(self.theme.colored_svg_icon(
-            path=str("PCApp/resources/icons/image-svgrepo-com.svg"),
+            path=str(self.settings.get("placeholder_image_path")),
             color_key="highlight",
             size=256
         ))
@@ -85,7 +86,7 @@ class MainWindow(QMainWindow):
     def _setup_tray_icon(self):
         """Konfiguruje ikonę w system tray."""
         self.tray_icon = QSystemTrayIcon(self)
-        self.icon = QIcon("PCApp/resources/icons/image-svgrepo-com.svg")  # tutaj placeholder ikony aplikacji
+        self.icon = QIcon(self.settings.get("placeholder_image_path"))
         self.tray_icon.setIcon(self.icon)
         self.tray_icon.setToolTip(self.strings.get("tooltip_app") or "Focusly")
         self.tray_icon.trans_tooltip_key = "tooltip_app"

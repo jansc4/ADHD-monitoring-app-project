@@ -37,8 +37,8 @@ class ThemeManager:
         self.load_theme()
         self.strings.load_language()
         base_dir = Path(__file__).resolve().parent.parent
-        style_path = base_dir / 'themes' / 'stylesheet.css'
-        with open(style_path, "r") as f:
+        style_path = base_dir / 'themes' / 'stylesheet.qss'
+        with open(style_path, "r", encoding="utf-8") as f:
             raw_css = f.read()
         styled_css = self.apply_to_stylesheet(raw_css)
         app.setStyleSheet(styled_css)

@@ -1,0 +1,180 @@
+/* ═══════════════════════════════════════════════════════════════
+   GŁÓWNE STYLE APLIKACJI
+   ═══════════════════════════════════════════════════════════════ */
+
+QWidget {{
+    background-color: {main_qwidget_background};
+    color: {main_qwidget_colour};
+    font-family: {font_family}, "Arial", "sans-serif";
+    font-size: {font_size};
+}}
+
+#stackedWidget {{
+    border-bottom: 1px solid {main_titleBar_border_bottom};
+}}
+
+/* ═══════════════════════════════════════════════════════════════
+   GŁÓWNE LAYOUTY
+   ═══════════════════════════════════════════════════════════════ */
+
+#centralWidget {{
+    border: 3px solid {main_titleBar_border_bottom};
+    border-radius: 8px;
+}}
+
+/* ═══════════════════════════════════════════════════════════════
+   PASEK TYTUŁOWY
+   ═══════════════════════════════════════════════════════════════ */
+
+#titleBar {{
+    background-color: {main_titleBar_background};
+    border-bottom: 1px solid {main_titleBar_border_bottom};
+}}
+
+#titleLabel {{
+    font-size: {font_size};
+    font-weight: bold;
+    color: {main_titleLabel_color};
+    background: transparent;
+}}
+
+/* Przyciski paska tytułowego */
+#titleBar #fullBtn, #titleBar #minBtn, #titleBar #maxBtn, #titleBar #closeBtn {{
+    background: {main_btn_background};
+    border: {main_btn_border};
+    border-radius: 4px;
+}}
+
+#titleBar #fullBtn:hover, #titleBar #minBtn:hover, #titleBar #maxBtn:hover, #titleBar #closeBtn:hover {{
+    background: {main_btn_hover_background};
+}}
+
+#titleBar #fullBtn:pressed, #titleBar #minBtn:pressed, #titleBar #maxBtn:pressed, #titleBar #closeBtn:pressed {{
+    background: {main_btn_active_color};
+}}
+
+/* ═══════════════════════════════════════════════════════════════
+   SETTINGS DIALOG - FLOATING WINDOW
+   ═══════════════════════════════════════════════════════════════ */
+
+SettingsDialog {{
+    background-color: {main_qwidget_background};
+    border: 3px solid {main_titleBar_border_bottom};
+    border-radius: 10px;
+}}
+
+/* Nagłówek Settings Dialog */
+#settingsHeader {{
+    background: {main_titleBar_background};
+    color: {main_titleLabel_color};
+    font-size: 18px;
+    font-weight: bold;
+    padding: 15px;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+}}
+
+/* Etykiety kategorii ustawień */
+#settingsLabel {{
+    color: {main_qwidget_colour};
+    font-weight: bold;
+    font-size: {font_size};
+}}
+
+/* ComboBox w Settings Dialog */
+#languageCombo, #themeCombo, #fontCombo, #fontSizeCombo {{
+    background-color: {main_btn_background};
+    border: 1px solid {main_btn_border};
+    border-radius: 6px;
+    padding: 8px 12px;
+    color: {main_btn_text_color};
+    min-height: 35px;
+}}
+
+#languageCombo:hover, #themeCombo:hover, #fontCombo:hover, #fontSizeCombo:hover {{
+    border: 1px solid {main_btn_hover_background};
+}}
+
+#languageCombo::drop-down, #themeCombo::drop-down, #fontCombo::drop-down, #fontSizeCombo::drop-down {{
+    border: none;
+    padding-right: 10px;
+}}
+
+#languageCombo::down-arrow, #themeCombo::down-arrow, #fontCombo::down-arrow, #fontSizeCombo::down-arrow {{
+    image: none;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 5px solid {main_btn_text_color};
+    margin-right: 5px;
+}}
+
+/* Rozwijana lista ComboBox */
+#languageCombo QAbstractItemView, #themeCombo QAbstractItemView, 
+#fontCombo QAbstractItemView, #fontSizeCombo QAbstractItemView {{
+    background-color: {main_btn_background};
+    border: 1px solid {main_btn_border};
+    border-radius: 4px;
+    color: {main_btn_text_color};
+    selection-background-color: {main_btn_hover_background};
+    padding: 5px;
+}}
+
+/* Przyciski w Settings Dialog */
+SettingsDialog #applyBtn, SettingsDialog #closeBtn {{
+    background-color: {main_btn_background};
+    border: 1px solid {main_btn_border};
+    border-radius: 6px;
+    padding: 10px 20px;
+    color: {main_btn_text_color};
+    min-height: 40px;
+    font-weight: bold;
+}}
+
+SettingsDialog #applyBtn:hover, SettingsDialog #closeBtn:hover {{
+    background-color: {main_btn_hover_background};
+}}
+
+SettingsDialog #applyBtn:pressed, SettingsDialog #closeBtn:pressed {{
+    background-color: {main_btn_active_color};
+}}
+
+/* Scroll Area w Settings Dialog */
+SettingsDialog QScrollArea {{
+    border: none;
+    background: transparent;
+}}
+
+SettingsDialog QScrollBar:vertical {{
+    background: {main_btn_background};
+    width: 10px;
+    border-radius: 5px;
+    margin: 0px;
+}}
+
+SettingsDialog QScrollBar::handle:vertical {{
+    background: {main_btn_hover_background};
+    border-radius: 5px;
+    min-height: 20px;
+}}
+
+SettingsDialog QScrollBar::handle:vertical:hover {{
+    background: {main_btn_active_color};
+}}
+
+SettingsDialog QScrollBar::add-line:vertical, 
+SettingsDialog QScrollBar::sub-line:vertical {{
+    height: 0px;
+}}
+
+
+/* ═══════════════════════════════════════════════════════════════
+   TOOLTIPS
+   ═══════════════════════════════════════════════════════════════ */
+
+QToolTip {{
+    background-color: {main_btn_background};
+    color: {main_btn_text_color};
+    border: 1px solid {main_btn_border};
+    border-radius: 4px;
+    padding: 5px;
+}}

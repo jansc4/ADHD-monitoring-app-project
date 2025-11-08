@@ -17,9 +17,7 @@ def main():
     """Główna funkcja aplikacji."""
     app = QApplication(sys.argv)
     
-    # Inicjalizacja globalnego klienta API
-    # TODO: Przenieś URL do pliku konfiguracyjnego
-    api_client = APIClient(base_url="http://localhost:8000")
+
     
     # --- SplashScreen (opcjonalny) ---
     # splash = QSplashScreen(QPixmap("resources/splashscreen.png"))
@@ -27,7 +25,7 @@ def main():
     # app.processEvents()
     
     # Utworzenie głównego okna z przekazaniem api_client
-    window = MainWindow(api_client)
+    window = MainWindow()
     window.show()
     
     # splash.finish(window)

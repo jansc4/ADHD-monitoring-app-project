@@ -1,15 +1,15 @@
 {
-  "main_qwidget_background": "#ffe6e6",
+  "main_qwidget_background": "#f3fff4",
   "main_qwidget_colour": "#1a1a1a",
 
-  "main_titleBar_background": "#ffcccc",
-  "main_titleBar_border_bottom": "#b0b0b0",
+  "main_titleBar_background": "#e6f8e6",
+  "main_titleBar_border_bottom": "#c6eac6",
   "main_titleLabel_color": "#1a1a1a",
 
   "main_btn_background": "transparent",
   "main_btn_border": "none",
-  "main_btn_hover_background": "#b7dbb7",
+  "main_btn_hover_background": "#c7ecc7",
   "main_btn_text_color": "#2e7d32",
-  "main_btn_active_color": "#cc0066",
-  "icons": "#000000"
+  "main_btn_active_color": "#66bb6a",
+  "icons": "#2e7d32"
 }
