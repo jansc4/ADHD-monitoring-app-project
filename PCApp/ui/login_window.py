@@ -46,26 +46,25 @@ class LoginPage(QWidget):
         form_layout.setSpacing(20)
         
         # Nagłówek
-        title = QLabel(self.strings.get("login_title") or "Sign In")
+        title = QLabel(self.strings.get("login_title"))
         title.setObjectName("loginTitle")
         title.setAlignment(Qt.AlignmentFlag.AlignCenter)
         title.setStyleSheet("font-size: 24px; font-weight: bold;")
         title.trans_key = "login_title"
         
         # Pole email
-        email_label = QLabel(self.strings.get("login_email") or "Email:")
+        email_label = QLabel(self.strings.get("login_email"))
         email_label.setObjectName("loginLabel")
         email_label.trans_key = "login_email"
         
         self.email_input = QLineEdit()
         self.email_input.setObjectName("loginInput")
         self.email_input.setPlaceholderText(
-            self.strings.get("login_email_placeholder") or "Enter your email"
-        )
+            self.strings.get("login_email_placeholder"))
         self.email_input.trans_placeholder_key = "login_email_placeholder"
         
         # Pole hasło
-        password_label = QLabel(self.strings.get("login_password") or "Password:")
+        password_label = QLabel(self.strings.get("login_password"))
         password_label.setObjectName("loginLabel")
         password_label.trans_key = "login_password"
         
@@ -73,15 +72,14 @@ class LoginPage(QWidget):
         self.password_input.setObjectName("loginInput")
         self.password_input.setEchoMode(QLineEdit.EchoMode.Password)
         self.password_input.setPlaceholderText(
-            self.strings.get("login_password_placeholder") or "Enter your password"
-        )
+            self.strings.get("login_password_placeholder"))
         self.password_input.trans_placeholder_key = "login_password_placeholder"
         
         # Obsługa Enter
         self.password_input.returnPressed.connect(self._handle_login)
         
         # Przycisk logowania
-        self.login_btn = QPushButton(self.strings.get("login_button") or "Sign In")
+        self.login_btn = QPushButton(self.strings.get("login_button"))
         self.login_btn.setObjectName("loginButton")
         self.login_btn.trans_key = "login_button"
         self.login_btn.setFixedHeight(40)
@@ -126,11 +124,11 @@ class LoginPage(QWidget):
         
         # Walidacja
         if not email:
-            self._show_error(self.strings.get("error_email_required") or "Email is required")
+            self._show_error(self.strings.get("error_email_required"))
             return
         
         if not password:
-            self._show_error(self.strings.get("error_password_required") or "Password is required")
+            self._show_error(self.strings.get("error_password_required"))
             return
         
         # Rozpocznij logowanie
@@ -140,6 +138,7 @@ class LoginPage(QWidget):
         try:
             # Wywołaj API
             token = self.api_client.login(email, password)
+            print(f"Zalogowano, token: {token}")
             
             # Pobierz dane użytkownika
             user_data = self.api_client.get_current_user()
@@ -151,7 +150,7 @@ class LoginPage(QWidget):
             self.login_successful.emit(user_data)
             
             # Opcjonalnie: wyświetl sukces
-            self._show_success(self.strings.get("login_success") or "Login successful!")
+            self._show_success(self.strings.get("login_success"))
 
         except Exception as e:
             self._set_loading(False)
@@ -159,20 +158,11 @@ class LoginPage(QWidget):
             
             # Wyodrębnij bardziej czytelny komunikat błędu
             if "401" in error_msg or "Unauthorized" in error_msg:
-                error_msg = self.strings.get(
-                    "error_invalid_credentials", 
-                    "Invalid email or password"
-                )
+                error_msg = self.strings.get("error_invalid_credentials")
             elif "Network" in error_msg or "Connection" in error_msg:
-                error_msg = self.strings.get(
-                    "error_network", 
-                    "Network error. Please check your connection."
-                )
+                error_msg = self.strings.get("error_network")
             else:
-                error_msg = self.strings.get(
-                    "error_general", 
-                    "An error occurred. Please try again."
-                )
+                error_msg = self.strings.get("error_general")
             
             self._show_error(error_msg)
     

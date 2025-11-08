@@ -34,6 +34,9 @@ class SettingsDialog(QDialog):
     def _setup_window(self):
         """Konfiguruje właściwości okna."""
         self.setWindowTitle(self.strings.get("settings_title"))
+        # ensure QSS rules target this widget and background/border are painted
+        self.setObjectName("settingsDialog")
+        self.setAttribute(Qt.WidgetAttribute.WA_StyledBackground, True)
         self.setWindowFlags(
             Qt.WindowType.Dialog | 
             Qt.WindowType.WindowStaysOnTopHint |

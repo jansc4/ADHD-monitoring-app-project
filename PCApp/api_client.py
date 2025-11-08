@@ -44,8 +44,23 @@ class APIClient:
 
     def login(self, email: str, password: str):
         """Logowanie użytkownika i zapis tokenu."""
-        payload = {"username": email, "password": password}
-        data = self.post("/login", payload)
+        # Form data matching FastAPI's OAuth2PasswordRequestForm
+        payload = {
+            "username": email,
+            "password": password,
+            "grant_type": "password",
+            "scope": "",
+            "client_id": "",
+            "client_secret": ""
+        }
+        print("Sending login request with payload:", payload)
+        url = f"{self.base_url}/login"  # correct - matches router
+        headers = {"Content-Type": "application/x-www-form-urlencoded"}
+        if self.token:
+            headers["Authorization"] = f"Bearer {self.token}"
+        resp = requests.post(url, headers=headers, data=payload)
+        data = self._handle_response(resp)
+        print(f"Login response data: {data}")
         token = data.get("access_token")
         refresh_token = data.get("refresh_token")
         if not token:
@@ -55,4 +70,4 @@ class APIClient:
 
     def get_current_user(self):
         """Pobiera dane zalogowanego użytkownika."""
-        return self.get("/users/me")
+        return self.get("/patient/me")

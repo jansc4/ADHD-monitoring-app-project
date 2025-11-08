@@ -1,3 +1,4 @@
+import logging
 from fastapi import FastAPI
 from app.routers import admin, doctors
 from app.routers import patients
@@ -10,6 +11,14 @@ async def lifespan(app: FastAPI):
     await connect_db()  # Połączenie z bazą danych przy starcie
     yield
     # Tu możesz dodać cleanup, np. zamknięcie połączeń
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    datefmt='%Y-%m-%d %H:%M:%S'
+)
+
 
 app = FastAPI(lifespan=lifespan)
 

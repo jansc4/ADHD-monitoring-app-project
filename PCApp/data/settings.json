@@ -13,12 +13,12 @@
         16,
         18
     ],
-    "theme": "light",
+    "theme": "dark",
     "themes": [
         "light",
         "dark"
     ],
-    "language": "lang_pl",
+    "language": "lang_en",
     "languages": [
         "lang_en",
         "lang_pl"
@@ -35,6 +35,6 @@
         16,
         18
     ],
-    "api_url": "http://localhost:8000/api",
+    "api_url": "http://localhost:8000/",
     "placeholder_image_path": "PCApp/resources/icons/image-svgrepo-com.svg"
 }

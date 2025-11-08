@@ -57,14 +57,15 @@ QWidget {{
    SETTINGS DIALOG - FLOATING WINDOW
    ═══════════════════════════════════════════════════════════════ */
 
-SettingsDialog {{
+/* scope by objectName to ensure match with the dialog instance */
+#settingsDialog {{
     background-color: {main_qwidget_background};
     border: 3px solid {main_titleBar_border_bottom};
     border-radius: 10px;
 }}
 
 /* Nagłówek Settings Dialog */
-#settingsHeader {{
+#settingsDialog #settingsHeader {{
     background: {main_titleBar_background};
     color: {main_titleLabel_color};
     font-size: 18px;
@@ -72,13 +73,6 @@ SettingsDialog {{
     padding: 15px;
     border-top-left-radius: 8px;
     border-top-right-radius: 8px;
-}}
-
-/* Etykiety kategorii ustawień */
-#settingsLabel {{
-    color: {main_qwidget_colour};
-    font-weight: bold;
-    font-size: {font_size};
 }}
 
 /* ComboBox w Settings Dialog */

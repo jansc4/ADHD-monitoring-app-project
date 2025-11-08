@@ -1,3 +1,4 @@
+import logging
 from bson import ObjectId
 from fastapi import HTTPException, status
 from motor.motor_asyncio import AsyncIOMotorDatabase
@@ -13,7 +14,8 @@ from app.schemas.pydantic_schemas import (
     UserCreate, TokenResponse, UserResponse
 )
 
-
+# Setup logger at the top of the file
+logger = logging.getLogger(__name__)
 
 async def register_user_service(user: UserCreate) -> UserResponse:
     db = await get_db()
@@ -25,16 +27,42 @@ async def register_user_service(user: UserCreate) -> UserResponse:
 
 
 async def login_user_service(form_data) -> TokenResponse:
-    db = await get_db()
-    db_user = await get_user_by_email(form_data.username, db)
-    if not db_user or not verify_password(form_data.password, db_user["password"]):
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
+    """Handle user login and token generation."""
+    try:
+        db = await get_db()
+        logger.info(f"Attempting login for user: {form_data.username}")
+        
+        db_user = await get_user_by_email(form_data.username, db)
+        if not db_user:
+            logger.warning(f"Login failed - user not found: {form_data.username}")
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED, 
+                detail="Invalid credentials"
+            )
+        
+        if not verify_password(form_data.password, db_user["password"]):
+            logger.warning(f"Login failed - invalid password for user: {form_data.username}")
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED, 
+                detail="Invalid credentials"
+            )
 
-    user_id = str(db_user["_id"])
-    role = db_user.get("role", "patient")
-    access_token = create_access_token({"sub": user_id, "role": role})
-    refresh_token = create_refresh_token({"sub": user_id})
-    return TokenResponse(access_token=access_token, refresh_token=refresh_token, token_type="bearer")
+        user_id = str(db_user["_id"])
+        role = db_user.get("role", "patient")
+        logger.info(f"Login successful for user: {form_data.username} (ID: {user_id}, Role: {role})")
+        
+        access_token = create_access_token({"sub": user_id, "role": role})
+        refresh_token = create_refresh_token({"sub": user_id})
+        
+        logger.debug("Generated tokens successfully")
+        return TokenResponse(
+            access_token=access_token, 
+            refresh_token=refresh_token, 
+            token_type="bearer"
+        )
+    except Exception as e:
+        logger.error(f"Unexpected error during login: {str(e)}", exc_info=True)
+        raise
 
 
 async def refresh_token_service(refresh_token: str) -> TokenResponse:
