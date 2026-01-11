@@ -4,14 +4,13 @@ import requests
 
 class APIClient:
     def __init__(self, base_url: str):
-        self.base_url = base_url.rstrip("/")
+        self.base_url = (base_url or "http://127.0.0.1:8000").rstrip("/")
         self.token = None
         self.refresh_token = None
 
-    def set_token(self, token: str, refresh_token: str = None):
-        """Ustawia token JWT po zalogowaniu."""
-        self.token = token
-        self.refresh_token = refresh_token
+    # =====================
+    # NISKOPZIOMOWE METODY
+    # =====================
 
     def _headers(self) -> dict:
         headers = {"Content-Type": "application/json"}
@@ -30,7 +29,6 @@ class APIClient:
         return self._handle_response(resp)
 
     def _handle_response(self, response):
-        """Obsługa błędów i automatyczne parsowanie JSON."""
         try:
             data = response.json()
         except json.JSONDecodeError:
@@ -38,36 +36,58 @@ class APIClient:
 
         if response.status_code >= 400:
             raise Exception(f"API error {response.status_code}: {data}")
+
         return data
 
-    # --- Wygodne metody wysokiego poziomu ---
+    # =====================
+    # METODY WYSOKIEGO POZIOMU
+    # =====================
 
     def login(self, email: str, password: str):
-        """Logowanie użytkownika i zapis tokenu."""
-        # Form data matching FastAPI's OAuth2PasswordRequestForm
+        """
+        Logowanie użytkownika – FORM DATA (OAuth2)
+        POST /login
+        """
+        payload = {
+            "username": email,   # backend wymaga username
+            "password": password
+        }
+
+        print("Sending LOGIN payload:", payload)
+
+        resp = requests.post(
+            f"{self.base_url}/login",
+            data=payload,  # FORM DATA
+            headers={"Content-Type": "application/x-www-form-urlencoded"}
+        )
+
+        data = self._handle_response(resp)
+
+        print("LOGIN RESPONSE:", data)
+
+        self.token = data["access_token"]
+        self.refresh_token = data.get("refresh_token")
+
+        return data
+
+    def register(self, email: str, password: str, role: str = "patient"):
+        """
+        Rejestracja użytkownika
+        POST /register
+        """
         payload = {
             "username": email,
+            "email": email,
             "password": password,
-            "grant_type": "password",
-            "scope": "",
-            "client_id": "",
-            "client_secret": ""
+            "role": role
         }
-        print("Sending login request with payload:", payload)
-        url = f"{self.base_url}/login"  # correct - matches router
-        headers = {"Content-Type": "application/x-www-form-urlencoded"}
-        if self.token:
-            headers["Authorization"] = f"Bearer {self.token}"
-        resp = requests.post(url, headers=headers, data=payload)
-        data = self._handle_response(resp)
-        print(f"Login response data: {data}")
-        token = data.get("access_token")
-        refresh_token = data.get("refresh_token")
-        if not token:
-            raise Exception("Brak tokenu w odpowiedzi API.")
-        self.set_token(token, refresh_token)
-        return token
+
+        print("REGISTER payload:", payload)
+
+        return self.post("/register", payload)
 
     def get_current_user(self):
-        """Pobiera dane zalogowanego użytkownika."""
+        """
+        Pobiera dane aktualnie zalogowanego użytkownika
+        """
         return self.get("/patient/me")

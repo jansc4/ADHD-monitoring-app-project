@@ -18,22 +18,9 @@
         "light",
         "dark"
     ],
-    "language": "lang_en",
+    "language": "lang_pl",
     "languages": [
         "lang_en",
         "lang_pl"
-    ],
-    "font_family_list": [
-        "Arial",
-        "Calibri",
-        "NewTimesRoman",
-        "Segoe UI"
-    ],
-    "font_seizes": [
-        12,
-        14,
-        16,
-        18
-    ],
-    "api_url": "http://localhost:8000/",
-    "placeholder_image_path": "PCApp/resources/icons/ikonaprosta.png"
+    ]
+}

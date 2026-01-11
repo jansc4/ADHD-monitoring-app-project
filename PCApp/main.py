@@ -2,34 +2,40 @@
 
 import sys
 import ctypes
-from PyQt6.QtWidgets import QApplication, QSplashScreen
-from PyQt6.QtGui import QPixmap
+import platform
 
-from ui.main_window import MainWindow
-from api_client import APIClient
+from PyQt6.QtWidgets import QApplication
 
-# Ustawienie unikalnego ID aplikacji dla systemu Windows
-APP_ID = 'EternalLab.Apps.Focusly.v0.1'
-ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(APP_ID)
+# ✅ POPRAWNE IMPORTY PAKIETOWE
+from PCApp.ui.main_window import MainWindow
+from PCApp.api_client import APIClient
+
+
+def set_windows_app_id(app_id: str) -> None:
+    """
+    Ustawia AppUserModelID tylko na Windows.
+    Na macOS i Linux funkcja nic nie robi.
+    """
+    if platform.system() == "Windows":
+        try:
+            ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(app_id)
+        except Exception:
+            pass
 
 
 def main():
-    """Główna funkcja aplikacji."""
-    app = QApplication(sys.argv)
-    
+    APP_ID = "EternalLab.Apps.Focusly.v0.1"
+    set_windows_app_id(APP_ID)
 
-    
-    # --- SplashScreen (opcjonalny) ---
-    # splash = QSplashScreen(QPixmap("resources/splashscreen.png"))
-    # splash.show()
-    # app.processEvents()
-    
-    # Utworzenie głównego okna z przekazaniem api_client
+    app = QApplication(sys.argv)
+
+    # API Client
+    api_client = APIClient("http://127.0.0.1:8000")
+
+    # Main window
     window = MainWindow()
     window.show()
-    
-    # splash.finish(window)
-    
+
     sys.exit(app.exec())
 
 
