@@ -26,15 +26,13 @@ class RegisterWindow(QWidget):
         container.setFixedWidth(720)
 
         layout = QVBoxLayout(container)
-        layout.setContentsMargins(70, 80, 70, 60)  # 🔧 WIĘCEJ GÓRY
+        layout.setContentsMargins(70, 80, 70, 60)
         layout.setSpacing(18)
 
-        # ===== TYTUŁ =====
         title = QLabel("Focusly")
         title.setObjectName("registerTitle")
         title.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
-        # ===== POLA =====
         self.first_name = QLineEdit(placeholderText="Imię")
         self.last_name = QLineEdit(placeholderText="Nazwisko")
         self.age = QLineEdit(placeholderText="Wiek")
@@ -54,9 +52,6 @@ class RegisterWindow(QWidget):
         ]:
             w.setObjectName("registerInput")
 
-        # ===== TYP KONTA =====
-    
-
         self.patient_radio = QRadioButton("Pacjent")
         self.doctor_radio = QRadioButton("Lekarz")
         self.patient_radio.setChecked(True)
@@ -67,7 +62,6 @@ class RegisterWindow(QWidget):
         role_layout.addWidget(self.doctor_radio)
         role_layout.addStretch()
 
-        # ===== PRZYCISKI =====
         self.register_btn = QPushButton("Zarejestruj się")
         self.register_btn.setObjectName("registerButton")
         self.register_btn.clicked.connect(self._handle_register)
@@ -76,7 +70,6 @@ class RegisterWindow(QWidget):
         self.back_btn.setObjectName("backButton")
         self.back_btn.clicked.connect(self.back_to_login.emit)
 
-        # ===== UKŁAD =====
         layout.addWidget(title)
         layout.addSpacing(10)
 
@@ -98,7 +91,7 @@ class RegisterWindow(QWidget):
         main_layout.addWidget(container)
 
     def _handle_register(self):
-        email = self.email.text().strip()
+        email = self.email.text().strip().lower()
         password = self.password.text()
         password_repeat = self.password_repeat.text()
 
@@ -107,23 +100,35 @@ class RegisterWindow(QWidget):
             return
 
         if not password or password != password_repeat:
-            print("Błąd hasła")
+            print("Hasła nie są zgodne")
             return
 
         role = "doctor" if self.doctor_radio.isChecked() else "patient"
 
+        # ✅ BACKEND-COMPATIBLE PAYLOAD
         payload = {
-            "username": email,
-            "email": email,
+            "username": email,      # 🔑 WYMAGANE
+            "email": email,         # 🔑 UNIKALNE
             "password": password,
-            "role": role
+            "role": role,
+            "first_name": self.first_name.text().strip(),
+            "last_name": self.last_name.text().strip()
         }
 
         try:
             self.api_client.post("/register", payload)
+            print("Rejestracja zakończona sukcesem")
             self.back_to_login.emit()
+
         except Exception as e:
-            print("Błąd rejestracji:", e)
+            error = str(e)
+
+            if "Email already in use" in error:
+                print("Ten email jest już zajęty.")
+            elif "username" in error:
+                print("Błąd danych użytkownika.")
+            else:
+                print("Błąd rejestracji:", error)
 
     def _apply_style(self):
         self.setStyleSheet("""
@@ -143,24 +148,14 @@ class RegisterWindow(QWidget):
         }
 
         QLabel#registerTitle {
-            background: transparent;
             font-size: 42px;
             font-weight: bold;
             color: white;
-            margin-bottom: 10px;
         }
-
-       
 
         QRadioButton {
-            background: transparent;
             color: white;
             font-size: 15px;
-        }
-
-        QRadioButton::indicator {
-            width: 16px;
-            height: 16px;
         }
 
         QLineEdit#registerInput {

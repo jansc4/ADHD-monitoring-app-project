@@ -2,8 +2,13 @@ import logging
 from bson import ObjectId
 from fastapi import HTTPException, status
 from motor.motor_asyncio import AsyncIOMotorDatabase
+
 from app.db.mongo import get_db
-from app.repositories.user_repository import *
+from app.repositories.user_repository import (
+    create_user,
+    get_user_by_email,
+    get_user_by_id
+)
 from app.models.mongo_models import UserInDB
 from app.security import (
     hash_password, verify_password,
@@ -14,57 +19,104 @@ from app.schemas.pydantic_schemas import (
     UserCreate, TokenResponse, UserResponse
 )
 
-# Setup logger at the top of the file
+# Setup logger
 logger = logging.getLogger(__name__)
 
+
+# =========================
+# REGISTER
+# =========================
 async def register_user_service(user: UserCreate) -> UserResponse:
     db = await get_db()
+
+    # sprawdzenie emaila
     await check_email(str(user.email), db)
+
     hashed_password = hash_password(user.password)
-    new_user = UserInDB(username=user.username, email=user.email, password=hashed_password)
+
+    # ✅ WALIDACJA I ZAPIS ROLI
+    role = user.role if user.role in ["patient", "doctor"] else "patient"
+
+    new_user = UserInDB(
+        username=user.username,
+        email=user.email,
+        password=hashed_password,
+        role=role
+    )
+
     await create_user(new_user.model_dump(), db)
-    return UserResponse(username=user.username, email=user.email)
+
+    logger.info(f"User registered: {user.email} (role={role})")
+
+    # 🔥 TU BYŁ PROBLEM — TERAZ JEST POPRAWNIE
+    return UserResponse(
+        username=user.username,
+        email=user.email,
+        role=role
+    )
 
 
+# =========================
+# LOGIN
+# =========================
 async def login_user_service(form_data) -> TokenResponse:
-    """Handle user login and token generation."""
     try:
         db = await get_db()
         logger.info(f"Attempting login for user: {form_data.username}")
-        
+
         db_user = await get_user_by_email(form_data.username, db)
         if not db_user:
             logger.warning(f"Login failed - user not found: {form_data.username}")
             raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED, 
+                status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Invalid credentials"
             )
-        
+
         if not verify_password(form_data.password, db_user["password"]):
             logger.warning(f"Login failed - invalid password for user: {form_data.username}")
             raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED, 
+                status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Invalid credentials"
             )
 
         user_id = str(db_user["_id"])
         role = db_user.get("role", "patient")
-        logger.info(f"Login successful for user: {form_data.username} (ID: {user_id}, Role: {role})")
-        
-        access_token = create_access_token({"sub": user_id, "role": role})
-        refresh_token = create_refresh_token({"sub": user_id})
-        
-        logger.debug("Generated tokens successfully")
+
+        logger.info(
+            f"Login successful: {form_data.username} "
+            f"(id={user_id}, role={role})"
+        )
+
+        access_token = create_access_token({
+            "sub": user_id,
+            "role": role
+        })
+        refresh_token = create_refresh_token({
+            "sub": user_id
+        })
+
         return TokenResponse(
-            access_token=access_token, 
-            refresh_token=refresh_token, 
+            access_token=access_token,
+            refresh_token=refresh_token,
             token_type="bearer"
         )
-    except Exception as e:
-        logger.error(f"Unexpected error during login: {str(e)}", exc_info=True)
+
+    except HTTPException:
         raise
+    except Exception as e:
+        logger.error(
+            f"Unexpected error during login: {str(e)}",
+            exc_info=True
+        )
+        raise HTTPException(
+            status_code=500,
+            detail="Internal server error"
+        )
 
 
+# =========================
+# REFRESH TOKEN
+# =========================
 async def refresh_token_service(refresh_token: str) -> TokenResponse:
     payload = verify_token(refresh_token)
     if not payload or not payload.get("sub"):
@@ -74,42 +126,34 @@ async def refresh_token_service(refresh_token: str) -> TokenResponse:
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
 
-    access_token = create_access_token({"sub": str(user["_id"]), "scopes": [user["role"]]})
-    return TokenResponse(access_token=access_token, token_type="bearer")
+    access_token = create_access_token({
+        "sub": str(user["_id"]),
+        "role": user.get("role", "patient")
+    })
+
+    return TokenResponse(
+        access_token=access_token,
+        token_type="bearer"
+    )
 
 
-        
+# =========================
+# HELPERS
+# =========================
 async def check_email(required_email: str, db: AsyncIOMotorDatabase):
-    """
-    Sprawdza, czy email jest już używany przez innego użytkownika w bazie danych.
-
-    Args:
-        required_email (str): Email, który ma zostać sprawdzony.
-        db: Obiekt bazy danych.
-
-    Raises:
-        HTTPException: Jeśli email jest już w użyciu, zgłasza błąd 400 (Bad Request).
-    """
-
     existing_user = await get_user_by_email(required_email, db)
     if existing_user:
-        raise HTTPException(status_code=400, detail="Email already in use")
+        raise HTTPException(
+            status_code=400,
+            detail="Email already in use"
+        )
+
 
 async def check_id(required_id: str, db: AsyncIOMotorDatabase):
-    """
-    Sprawdza, czy użytkownik o podanym identyfikatorze istnieje w bazie danych.
-
-    Args:
-        required_id (str): ID użytkownika, którego istnienie ma zostać zweryfikowane.
-        db: Obiekt bazy danych.
-
-    Returns:
-        dict: Dane użytkownika, jeśli istnieje.
-
-    Raises:
-        HTTPException: Jeśli użytkownik o danym ID nie istnieje, zgłasza błąd 404 (Not Found).
-    """
     existing_user = await get_user_by_id(required_id, db)
     if not existing_user:
-        raise HTTPException(status_code=404, detail="User not found")
+        raise HTTPException(
+            status_code=404,
+            detail="User not found"
+        )
     return existing_user

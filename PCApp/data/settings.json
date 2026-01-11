@@ -1,5 +1,5 @@
 {
-    "font_family": "Segoe UI",
+    "font_family": "Arial",
     "font_families": [
         "Arial",
         "Calibri",
@@ -18,7 +18,7 @@
         "light",
         "dark"
     ],
-    "language": "lang_pl",
+    "language": "lang_en",
     "languages": [
         "lang_en",
         "lang_pl"

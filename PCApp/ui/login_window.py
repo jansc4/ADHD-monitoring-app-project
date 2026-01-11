@@ -9,6 +9,23 @@ from PyQt6.QtWidgets import (
 from PyQt6.QtCore import Qt, pyqtSignal
 from PyQt6.QtGui import QMovie
 
+from typing import Optional
+import base64
+import json
+
+
+def _get_role_from_jwt(token: str) -> Optional[str]:
+    """Odczyt roli z JWT bez weryfikacji podpisu (frontend only)."""
+    try:
+        payload_part = token.split(".")[1]
+        payload_part += "=" * (-len(payload_part) % 4)
+        decoded = base64.urlsafe_b64decode(payload_part)
+        payload = json.loads(decoded)
+        return payload.get("role")
+    except Exception as e:
+        print("JWT decode error:", e)
+        return None
+
 
 class LoginPage(QWidget):
     login_successful = pyqtSignal(dict)
@@ -91,8 +108,10 @@ class LoginPage(QWidget):
 
         main_layout.addWidget(form_container)
 
+    # ================= LOGOWANIE =================
+
     def _handle_login(self):
-        email = self.email_input.text().strip()
+        email = self.email_input.text().strip().lower()
         password = self.password_input.text()
 
         if not email or not password:
@@ -103,8 +122,25 @@ class LoginPage(QWidget):
         self._hide_status()
 
         try:
-            self.api_client.login(email, password)
-            user_data = self.api_client.get_current_user()
+            login_response = self.api_client.login(email, password)
+
+            access_token = None
+            if isinstance(login_response, dict):
+                access_token = login_response.get("access_token")
+
+            if access_token is None:
+                access_token = getattr(self.api_client, "access_token", None)
+
+            role = _get_role_from_jwt(access_token) if access_token else None
+
+            user_data = {
+                "username": email,
+                "email": email,
+                "role": role
+            }
+
+            print("✅ Zalogowano (JWT):", user_data)
+
             self._set_loading(False)
             self.login_successful.emit(user_data)
 
@@ -113,9 +149,13 @@ class LoginPage(QWidget):
             self._set_loading(False)
             self._show_error("Błędne dane logowania")
 
+    # ================= REJESTRACJA =================
+
     def _open_register(self):
         self.register_window = RegisterWindow(self.api_client)
         self.register_window.show()
+
+    # ================= UI HELPERS =================
 
     def _set_loading(self, loading: bool):
         for w in (
@@ -140,6 +180,9 @@ class LoginPage(QWidget):
 
     def _hide_status(self):
         self.status_label.hide()
+
+    # ================= STYL =================
+
     def _apply_focusly_style(self):
         """Styl Focusly dla strony logowania"""
         self.setStyleSheet("""

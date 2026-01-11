@@ -17,6 +17,7 @@ from PCApp.ui.components import TitleBar, WindowResizeHandler
 from PCApp.ui.settings_dialog import SettingsDialog
 from PCApp.ui.login_window import LoginPage
 from PCApp.ui.patient_dashboard import PatientDashboard
+from PCApp.ui.doctor_dashboard import DoctorDashboard
 
 from PCApp.api_client import APIClient
 
@@ -75,7 +76,7 @@ class MainWindow(QMainWindow):
         self.login_page.login_successful.connect(self._handle_login_success)
         self.stacked_widget.addWidget(self.login_page)
 
-        # DASHBOARD (na razie None)
+        # DASHBOARD (dynamiczny)
         self.dashboard = None
 
         # LAYOUT
@@ -120,11 +121,22 @@ class MainWindow(QMainWindow):
     def _handle_login_success(self, user_data: dict):
         print("✅ Zalogowano:", user_data)
 
-        # TU PÓŹNIEJ: if role == "doctor"/"admin"
-        if self.dashboard is None:
-            self.dashboard = PatientDashboard(user_data)
-            self.stacked_widget.addWidget(self.dashboard)
+        role = user_data.get("role")
+        print("➡️ ROLA UŻYTKOWNIKA:", role)
 
+        # usuń stary dashboard (jeśli istniał)
+        if self.dashboard is not None:
+            self.stacked_widget.removeWidget(self.dashboard)
+            self.dashboard.deleteLater()
+            self.dashboard = None
+
+        # routing po roli
+        if role == "doctor":
+            self.dashboard = DoctorDashboard(user_data)
+        else:
+            self.dashboard = PatientDashboard(user_data)
+
+        self.stacked_widget.addWidget(self.dashboard)
         self.stacked_widget.setCurrentWidget(self.dashboard)
 
     # ================= USTAWIENIA =================
