@@ -1,13 +1,14 @@
 """Główne okno aplikacji."""
 
 from PyQt6.QtWidgets import (
-    QMainWindow, QWidget, QVBoxLayout,
+    QMainWindow, QWidget,
+    QVBoxLayout, QHBoxLayout,
     QSystemTrayIcon, QMenu, QApplication, QStackedWidget
 )
-from PyQt6.QtGui import QIcon, QAction
+from PyQt6.QtGui import QAction
 from PyQt6.QtCore import Qt
 
-# ================= IMPORTY PROJEKTOWE =================
+# ================= IMPORTY =================
 
 from PCApp.customization_manager.settings_manager import SettingsManager
 from PCApp.customization_manager.strings_manager import StringsManager
@@ -16,13 +17,18 @@ from PCApp.customization_manager.theme_manager import ThemeManager
 from PCApp.ui.components import TitleBar, WindowResizeHandler
 from PCApp.ui.settings_dialog import SettingsDialog
 from PCApp.ui.login_window import LoginPage
+
 from PCApp.ui.patient_dashboard import PatientDashboard
 from PCApp.ui.doctor_dashboard import DoctorDashboard
+from PCApp.ui.doctor_profile_view import DoctorProfileView
+from PCApp.ui.sidebar import Sidebar
 
 from PCApp.api_client import APIClient
 
 
 class MainWindow(QMainWindow):
+
+    # ================= INIT =================
 
     def __init__(self):
         super().__init__()
@@ -38,7 +44,7 @@ class MainWindow(QMainWindow):
     def _setup_window(self):
         self.setWindowFlags(Qt.WindowType.FramelessWindowHint)
         self.setMouseTracking(True)
-        self.setGeometry(100, 100, 900, 700)
+        self.setGeometry(100, 100, 1000, 700)
 
     # ================= MANAGERY =================
 
@@ -68,76 +74,84 @@ class MainWindow(QMainWindow):
         self.title_bar.fullscreen_clicked.connect(self.toggle_fullscreen)
         self.title_bar.settings_clicked.connect(self.show_settings)
 
-        # STACKED WIDGET (widoki)
+        # CONTENT
+        self.sidebar = None
         self.stacked_widget = QStackedWidget()
 
-        # LOGIN
         self.login_page = LoginPage(self.strings, self.api_client, self)
         self.login_page.login_successful.connect(self._handle_login_success)
         self.stacked_widget.addWidget(self.login_page)
 
-        # DASHBOARD (dynamiczny)
-        self.dashboard = None
+        self.doctor_dashboard = None
+        self.doctor_profile_view = None
+        self.patient_dashboard = None
 
-        # LAYOUT
-        layout = QVBoxLayout()
-        layout.setContentsMargins(0, 0, 0, 0)
-        layout.setSpacing(0)
+        content_layout = QHBoxLayout()
+        content_layout.setContentsMargins(0, 0, 0, 0)
+        content_layout.setSpacing(0)
+        content_layout.addWidget(self.stacked_widget)
 
-        layout.addWidget(self.title_bar)
-        layout.addWidget(self.stacked_widget)
+        main_layout = QVBoxLayout()
+        main_layout.setContentsMargins(0, 0, 0, 0)
+        main_layout.setSpacing(0)
+        main_layout.addWidget(self.title_bar)
+        main_layout.addLayout(content_layout)
 
-        central_widget.setLayout(layout)
+        central_widget.setLayout(main_layout)
 
+        self.content_layout = content_layout
         self.settings_dialog = None
-
-    # ================= TRAY ICON =================
-
-    def _setup_tray_icon(self):
-        self.tray_icon = QSystemTrayIcon(self)
-
-        icon_path = self.settings.get("placeholder_image_path")
-        if icon_path:
-            self.tray_icon.setIcon(QIcon(icon_path))
-
-        self.tray_icon.setToolTip("Focusly")
-
-        tray_menu = QMenu(self)
-
-        restore_action = QAction("Restore", self)
-        restore_action.triggered.connect(self.show_normal_from_tray)
-
-        quit_action = QAction("Quit", self)
-        quit_action.triggered.connect(QApplication.quit)
-
-        tray_menu.addAction(restore_action)
-        tray_menu.addAction(quit_action)
-
-        self.tray_icon.setContextMenu(tray_menu)
-        self.tray_icon.show()
 
     # ================= LOGOWANIE =================
 
     def _handle_login_success(self, user_data: dict):
-        print("✅ Zalogowano:", user_data)
-
         role = user_data.get("role")
-        print("➡️ ROLA UŻYTKOWNIKA:", role)
 
-        # usuń stary dashboard (jeśli istniał)
-        if self.dashboard is not None:
-            self.stacked_widget.removeWidget(self.dashboard)
-            self.dashboard.deleteLater()
-            self.dashboard = None
+        for widget in (
+            self.sidebar,
+            self.doctor_dashboard,
+            self.doctor_profile_view,
+            self.patient_dashboard
+        ):
+            if widget:
+                widget.setParent(None)
+                widget.deleteLater()
 
-        # routing po roli
+        self.sidebar = None
+        self.doctor_dashboard = None
+        self.doctor_profile_view = None
+        self.patient_dashboard = None
+
         if role == "doctor":
-            self.dashboard = DoctorDashboard(user_data)
-        else:
-            self.dashboard = PatientDashboard(user_data)
+            self.sidebar = Sidebar(self)
+            self.content_layout.insertWidget(0, self.sidebar)
 
-        self.stacked_widget.addWidget(self.dashboard)
-        self.stacked_widget.setCurrentWidget(self.dashboard)
+            self.doctor_dashboard = DoctorDashboard(user_data, self)
+            self.doctor_profile_view = DoctorProfileView(user_data, self)
+
+            self.stacked_widget.addWidget(self.doctor_dashboard)
+            self.stacked_widget.addWidget(self.doctor_profile_view)
+            self.stacked_widget.setCurrentWidget(self.doctor_dashboard)
+        else:
+            self.patient_dashboard = PatientDashboard(user_data, self)
+            self.stacked_widget.addWidget(self.patient_dashboard)
+            self.stacked_widget.setCurrentWidget(self.patient_dashboard)
+
+    # ================= SIDEBAR =================
+
+    def show_doctor_dashboard(self):
+        self.stacked_widget.setCurrentWidget(self.doctor_dashboard)
+
+    def show_doctor_profile(self):
+        self.stacked_widget.setCurrentWidget(self.doctor_profile_view)
+
+    def logout(self):
+        if self.sidebar:
+            self.sidebar.setParent(None)
+            self.sidebar.deleteLater()
+            self.sidebar = None
+
+        self.stacked_widget.setCurrentWidget(self.login_page)
 
     # ================= USTAWIENIA =================
 
@@ -155,7 +169,19 @@ class MainWindow(QMainWindow):
         self.settings_dialog.raise_()
         self.settings_dialog.activateWindow()
 
-    # ================= OKNO – STEROWANIE =================
+    # ================= TRAY =================
+
+    def _setup_tray_icon(self):
+        self.tray_icon = QSystemTrayIcon(self)
+
+        tray_menu = QMenu(self)
+        tray_menu.addAction(QAction("Restore", self, triggered=self.show_normal_from_tray))
+        tray_menu.addAction(QAction("Quit", self, triggered=QApplication.quit))
+
+        self.tray_icon.setContextMenu(tray_menu)
+        self.tray_icon.show()
+
+    # ================= OKNO =================
 
     def toggle_maximize_restore(self):
         self.showNormal() if self.isMaximized() else self.showMaximized()
@@ -197,16 +223,9 @@ class MainWindow(QMainWindow):
                 stop:0.4 #090979,
                 stop:1 #3f32ff
             );
-            border-radius: 16px;
         }
 
         QWidget#centralWidget {
             background: transparent;
-        }
-
-        QLabel {
-            background: transparent;
-            color: white;
-            font-size: 14px;
         }
         """)

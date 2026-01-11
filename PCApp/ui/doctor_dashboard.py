@@ -11,9 +11,10 @@ from PCApp.ui.components.stat_card.stat_card import StatCard
 
 
 class DoctorDashboard(QWidget):
-    def __init__(self, user_data: dict, parent=None):
+    def __init__(self, user_data: dict, main_window, parent=None):
         super().__init__(parent)
         self.user_data = user_data
+        self.main_window = main_window
 
         self.setObjectName("doctorDashboard")
         self._setup_ui()
@@ -30,11 +31,9 @@ class DoctorDashboard(QWidget):
 
         header = QLabel(f"Witaj, <span style='color:#d6d3ff'>{email}</span> 👋")
         header.setObjectName("dashboardHeader")
-        header.setAlignment(Qt.AlignmentFlag.AlignLeft)
 
-        subheader = QLabel("Panel lekarza • zarządzanie pacjentami i sesjami")
+        subheader = QLabel("Zarządzanie pacjentami i sesjami")
         subheader.setObjectName("dashboardSubHeader")
-        subheader.setAlignment(Qt.AlignmentFlag.AlignLeft)
 
         main_layout.addWidget(header)
         main_layout.addWidget(subheader)
@@ -43,32 +42,30 @@ class DoctorDashboard(QWidget):
         cards_layout = QHBoxLayout()
         cards_layout.setSpacing(24)
 
-        patients_card = StatCard("👥 Liczba pacjentów", "—")
-        sessions_card = StatCard("📊 Sesje dzisiaj", "—")
-        alerts_card = StatCard("⚠️ Alerty", "—")
-
-        cards_layout.addWidget(patients_card)
-        cards_layout.addWidget(sessions_card)
-        cards_layout.addWidget(alerts_card)
+        cards_layout.addWidget(StatCard("👥 Pacjenci", "—"))
+        cards_layout.addWidget(StatCard("📊 Sesje dziś", "—"))
+        cards_layout.addWidget(StatCard("⚠️ Alerty", "—"))
 
         main_layout.addLayout(cards_layout)
 
-        # ================= ACTION BUTTONS =================
+        # ================= BUTTONS =================
         buttons_layout = QHBoxLayout()
         buttons_layout.setSpacing(20)
 
-        patients_btn = QPushButton("👥 Lista pacjentów")
-        patients_btn.setObjectName("secondaryButton")
+        profile_btn = QPushButton("🩺 Uzupełnij dane zawodowe")
+        profile_btn.setObjectName("secondaryButton")
+        profile_btn.clicked.connect(self._open_profile)
 
-        stats_btn = QPushButton("📈 Statystyki")
-        stats_btn.setObjectName("secondaryButton")
-
-        buttons_layout.addWidget(patients_btn)
-        buttons_layout.addWidget(stats_btn)
+        buttons_layout.addWidget(profile_btn)
         buttons_layout.addStretch()
 
         main_layout.addLayout(buttons_layout)
         main_layout.addStretch()
+
+    def _open_profile(self):
+        self.main_window.stacked_widget.setCurrentWidget(
+            self.main_window.doctor_profile_view
+        )
 
     def _apply_style(self):
         self.setStyleSheet("""
@@ -84,12 +81,12 @@ class DoctorDashboard(QWidget):
 
         QLabel#dashboardSubHeader {
             font-size: 15px;
-            color: rgba(255, 255, 255, 0.7);
+            color: rgba(255,255,255,0.7);
             margin-bottom: 8px;
         }
 
         QPushButton#secondaryButton {
-            background: rgba(255, 255, 255, 0.15);
+            background: rgba(255,255,255,0.15);
             color: white;
             border-radius: 20px;
             padding: 14px 20px;
@@ -97,6 +94,6 @@ class DoctorDashboard(QWidget):
         }
 
         QPushButton#secondaryButton:hover {
-            background: rgba(255, 255, 255, 0.25);
+            background: rgba(255,255,255,0.25);
         }
         """)
