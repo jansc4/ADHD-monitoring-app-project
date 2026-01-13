@@ -11,9 +11,11 @@ from PCApp.ui.components.stat_card.stat_card import StatCard
 
 
 class PatientDashboard(QWidget):
-    def __init__(self, user_data: dict, parent=None):
+    def __init__(self, user_data: dict, main_window, parent=None):
         super().__init__(parent)
         self.user_data = user_data
+        self.main_window = main_window
+
 
         self.setObjectName("patientDashboard")
         self._setup_ui()
@@ -53,6 +55,7 @@ class PatientDashboard(QWidget):
 
         start_btn = QPushButton("▶ Rozpocznij sesję")
         start_btn.setObjectName("primaryButton")
+        start_btn.clicked.connect(self.main_window.start_game)
 
         history_btn = QPushButton("📁 Historia sesji")
         history_btn.setObjectName("secondaryButton")

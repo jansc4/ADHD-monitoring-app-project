@@ -18,6 +18,7 @@ from PCApp.ui.components import TitleBar, WindowResizeHandler
 from PCApp.ui.settings_dialog import SettingsDialog
 from PCApp.ui.login_window import LoginPage
 
+from PCApp.ui.game_widget import GameView
 from PCApp.ui.patient_dashboard import PatientDashboard
 from PCApp.ui.doctor_dashboard import DoctorDashboard
 from PCApp.ui.doctor_profile_view import DoctorProfileView
@@ -81,6 +82,11 @@ class MainWindow(QMainWindow):
         self.login_page = LoginPage(self.strings, self.api_client, self)
         self.login_page.login_successful.connect(self._handle_login_success)
         self.stacked_widget.addWidget(self.login_page)
+        self.stacked_widget.setCurrentWidget(self.login_page)
+
+        self.game_view = GameView()
+        self.game_view.finished.connect(self.on_game_finished)
+        self.stacked_widget.addWidget(self.game_view)
 
         self.doctor_dashboard = None
         self.doctor_profile_view = None
@@ -152,6 +158,19 @@ class MainWindow(QMainWindow):
             self.sidebar = None
 
         self.stacked_widget.setCurrentWidget(self.login_page)
+
+    # ================= GRA =================
+
+    def start_game(self):
+        self.game_view.start_game()
+        self.stacked_widget.setCurrentWidget(self.game_view)
+
+    def on_game_finished(self, result):
+        print("Wynik gry:", result)
+        if self.patient_dashboard:
+            self.stacked_widget.setCurrentWidget(self.patient_dashboard)
+        else:
+            self.stacked_widget.setCurrentWidget(self.login_page)
 
     # ================= USTAWIENIA =================
 
