@@ -10,10 +10,6 @@ class Sidebar(QWidget):
         self.setFixedWidth(220)
         self.setObjectName("sidebar")
 
-        self._setup_ui()
-        self._apply_style()
-
-    def _setup_ui(self):
         layout = QVBoxLayout(self)
         layout.setContentsMargins(20, 30, 20, 20)
         layout.setSpacing(16)
@@ -25,44 +21,30 @@ class Sidebar(QWidget):
         layout.addWidget(title)
         layout.addSpacing(20)
 
-        dashboard_btn = QPushButton("🏠 Dashboard")
-        dashboard_btn.clicked.connect(
-            lambda: self.main_window.show_doctor_dashboard()
-        )
+        def btn(text, handler):
+            b = QPushButton(text)
+            b.setObjectName("sidebarButton")
+            b.clicked.connect(handler)
+            layout.addWidget(b)
 
-        profile_btn = QPushButton("🩺 Profil lekarza")
-        profile_btn.clicked.connect(
-            lambda: self.main_window.show_doctor_profile()
-        )
-
-        settings_btn = QPushButton("⚙️ Ustawienia konta")
-        settings_btn.clicked.connect(
-            self.main_window.show_settings
-        )
-
-        logout_btn = QPushButton("🚪 Wyloguj")
-        logout_btn.clicked.connect(
-            self.main_window.logout
-        )
-
-        for btn in (dashboard_btn, profile_btn, settings_btn, logout_btn):
-            btn.setObjectName("sidebarButton")
-            layout.addWidget(btn)
+        btn("🏠 Dashboard", self.main_window.show_doctor_dashboard)
+        btn("👤 Mój profil", self.main_window.show_doctor_profile)
+        btn("👥 Moi pacjenci", self.main_window.show_patients)
+        btn("📅 Kalendarz", self.main_window.show_calendar)
+        btn("⚙️ Ustawienia", self.main_window.show_settings)
+        btn("🚪 Wyloguj", self.main_window.logout)
 
         layout.addStretch()
 
-    def _apply_style(self):
         self.setStyleSheet("""
         QWidget#sidebar {
-            background: rgba(0, 0, 0, 0.35);
+            background: rgba(0,0,0,0.35);
         }
-
         QLabel#sidebarTitle {
             color: white;
             font-size: 22px;
             font-weight: bold;
         }
-
         QPushButton#sidebarButton {
             background: transparent;
             color: white;
@@ -72,8 +54,7 @@ class Sidebar(QWidget):
             font-size: 15px;
             border-radius: 10px;
         }
-
         QPushButton#sidebarButton:hover {
-            background: rgba(255, 255, 255, 0.15);
+            background: rgba(255,255,255,0.15);
         }
         """)
