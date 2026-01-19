@@ -1,19 +1,21 @@
 {
-  "entity": "Doctor",
-  "description": "Lekarz prowadzący terapię ADHD",
+  "entity": "Patient",
+  "description": "Pacjent objęty terapią ADHD",
   "fields": {
     "id": { "type": "uuid", "required": true },
     "email": { "type": "string", "required": true },
     "first_name": { "type": "string", "required": true },
     "last_name": { "type": "string", "required": true },
 
-    "facility": { "type": "string", "required": true },
-    "specialization": { "type": "string", "required": true },
-    "pwz": { "type": "string", "required": true },
+    "date_of_birth": { "type": "date", "required": true },
+    "gender": { "type": "string", "required": true },
 
     "postal_code": { "type": "string", "required": true },
     "city": { "type": "string", "required": true },
 
+    "guardian_email": { "type": "string", "required": false },
+
+    "diagnosis": { "type": "string", "required": true },
     "profile_completed": { "type": "boolean", "required": true },
 
     "created_at": { "type": "datetime", "required": true },

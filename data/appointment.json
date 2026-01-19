@@ -1,0 +1,17 @@
+{
+  "entity": "Appointment",
+  "description": "Termin wizyty u lekarza",
+  "fields": {
+    "id": { "type": "uuid", "required": true },
+    "doctor_id": { "type": "uuid", "required": true },
+    "patient_id": { "type": "uuid", "required": true },
+
+    "start_time": { "type": "datetime", "required": true },
+    "end_time": { "type": "datetime", "required": true },
+
+    "type": { "type": "string", "required": true },
+    "notes": { "type": "string", "required": false },
+
+    "status": { "type": "string", "required": true }
+  }
+}
