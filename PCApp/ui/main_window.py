@@ -25,7 +25,7 @@ from PCApp.ui.patient_dashboard import PatientDashboard
 from PCApp.ui.doctor_dashboard import DoctorDashboard
 from PCApp.ui.doctor_profile_view import DoctorProfileView
 from PCApp.ui.patients_view import PatientsView
-from PCApp.ui.calendar_view import CalendarView   # ✅ DODANE
+from PCApp.ui.calendar_view import CalendarView
 from PCApp.ui.sidebar import Sidebar
 
 from PCApp.api_client import APIClient
@@ -43,7 +43,8 @@ class MainWindow(QMainWindow):
         self.doctor_profile_view = None
         self.patient_dashboard = None
         self.patients_view = None
-        self.calendar_view = None   # ✅ DODANE
+        self.calendar_view = None
+        self.game_view = None
 
         self._setup_window()
         self._init_managers()
@@ -64,7 +65,7 @@ class MainWindow(QMainWindow):
         self.theme = ThemeManager(self.settings, self.strings)
 
         self.api_client = APIClient(
-            self.settings.get("api_url") or "http://127.0.0.1:8000"
+            self.settings.get("api_url") or "http://127.0.0.1:8001"
         )
 
     # ================= UI =================
@@ -73,7 +74,9 @@ class MainWindow(QMainWindow):
         self.resize_handler = WindowResizeHandler(self)
         self._setup_tray_icon()
 
+        # CENTRALNY KONTENER – JEDYNE ŹRÓDŁO GRADIENTU
         central = QWidget()
+        central.setObjectName("CentralContainer")
         self.setCentralWidget(central)
 
         self.title_bar = TitleBar(self.theme, self.strings, self)
@@ -86,21 +89,16 @@ class MainWindow(QMainWindow):
 
         self.login_page = LoginPage(self.strings, self.api_client, self)
         self.login_page.login_successful.connect(self._handle_login_success)
-<<<<<<< HEAD
-=======
-        self.stacked_widget.addWidget(self.login_page)
-        self.stacked_widget.setCurrentWidget(self.login_page)
-
-        self.game_view = GameView()
-        self.game_view.finished.connect(self.on_game_finished)
-        self.stacked_widget.addWidget(self.game_view)
->>>>>>> f2f1bd596c1cbaded743e65ccbabfcad552f4bd1
 
         self.register_page = RegisterWindow(self.api_client, self)
         self.register_page.back_to_login.connect(self.show_login)
 
+        self.game_view = GameView()
+        self.game_view.finished.connect(self.on_game_finished)
+
         self.stacked.addWidget(self.login_page)
         self.stacked.addWidget(self.register_page)
+        self.stacked.addWidget(self.game_view)
         self.stacked.setCurrentWidget(self.login_page)
 
         self.content_layout = QHBoxLayout()
@@ -147,7 +145,7 @@ class MainWindow(QMainWindow):
             self.doctor_dashboard = DoctorDashboard(user_data, self)
             self.doctor_profile_view = DoctorProfileView(self)
             self.patients_view = PatientsView(self)
-            self.calendar_view = CalendarView(self)   # ✅ DODANE
+            self.calendar_view = CalendarView(self)
 
             self.stacked.addWidget(self.doctor_dashboard)
             self.stacked.addWidget(self.doctor_profile_view)
@@ -194,14 +192,14 @@ class MainWindow(QMainWindow):
 
     def start_game(self):
         self.game_view.start_game()
-        self.stacked_widget.setCurrentWidget(self.game_view)
+        self.stacked.setCurrentWidget(self.game_view)
 
     def on_game_finished(self, result):
         print("Wynik gry:", result)
         if self.patient_dashboard:
-            self.stacked_widget.setCurrentWidget(self.patient_dashboard)
+            self.stacked.setCurrentWidget(self.patient_dashboard)
         else:
-            self.stacked_widget.setCurrentWidget(self.login_page)
+            self.stacked.setCurrentWidget(self.login_page)
 
     # ================= USTAWIENIA =================
 
@@ -231,6 +229,10 @@ class MainWindow(QMainWindow):
     def _apply_focusly_style(self):
         self.setStyleSheet("""
         QMainWindow {
+            background: none;
+        }
+
+        #CentralContainer {
             background: qlineargradient(
                 x1:0, y1:0,
                 x2:1, y2:1,
@@ -238,5 +240,14 @@ class MainWindow(QMainWindow):
                 stop:0.4 #090979,
                 stop:1 #3f32ff
             );
+        }
+
+        QWidget {
+            background: transparent;
+            color: #ffffff;
+        }
+
+        QFrame, QStackedWidget {
+            background: transparent;
         }
         """)

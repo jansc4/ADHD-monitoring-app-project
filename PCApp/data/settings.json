@@ -6,7 +6,7 @@
         "NewTimesRoman",
         "Segoe UI"
     ],
-    "font_size": 14,
+    "font_size": 18,
     "font_sizes": [
         12,
         14,
@@ -18,7 +18,7 @@
         "light",
         "dark"
     ],
-    "language": "lang_pl",
+    "language": "lang_en",
     "languages": [
         "lang_en",
         "lang_pl"

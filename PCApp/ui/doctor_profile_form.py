@@ -27,19 +27,22 @@ class DoctorProfileForm(QWidget):
 
         self._setup_ui()
         self._load_existing_profile()
+        self._apply_style()
 
     # ================= UI =================
     def _setup_ui(self):
         main_layout = QVBoxLayout(self)
 
-        # --- SCROLL ---
         scroll = QScrollArea()
         scroll.setWidgetResizable(True)
         scroll.setFrameShape(QScrollArea.Shape.NoFrame)
 
         container = QWidget()
+        container.setObjectName("profileContainer")
+
         layout = QVBoxLayout(container)
         layout.setSpacing(16)
+        layout.setContentsMargins(24, 24, 24, 24)
 
         self.facility = QComboBox()
         self.facility.addItems([
@@ -81,6 +84,7 @@ class DoctorProfileForm(QWidget):
 
         self.save_btn = QPushButton("Zapisz profil")
         self.save_btn.clicked.connect(self._save_profile)
+        self.save_btn.setObjectName("primaryButton")
 
         for label, widget in [
             ("Placówka", self.facility),
@@ -89,14 +93,30 @@ class DoctorProfileForm(QWidget):
             ("Kod pocztowy", self.postal_code),
             ("Miejscowość", self.city)
         ]:
-            layout.addWidget(QLabel(label))
-            layout.addWidget(widget)
+            layout.addWidget(self._make_field_block(label, widget))
 
         layout.addWidget(self.save_btn)
         layout.addStretch()
 
         scroll.setWidget(container)
         main_layout.addWidget(scroll)
+
+    def _make_field_block(self, label_text, widget):
+        block = QWidget()
+        block.setObjectName("fieldBlock")
+
+        v = QVBoxLayout(block)
+        v.setContentsMargins(14, 12, 14, 12)
+        v.setSpacing(6)
+
+        label = QLabel(label_text)
+        label.setObjectName("fieldLabel")
+
+        widget.setObjectName("profileInput")
+
+        v.addWidget(label)
+        v.addWidget(widget)
+        return block
 
     # ================= MIASTA =================
     def _load_cities(self):
@@ -193,25 +213,40 @@ class DoctorProfileForm(QWidget):
     # ================= STYLE =================
     def _apply_style(self):
         self.setStyleSheet("""
-        QLabel#profileTitle {
-            font-size: 22px;
+        QWidget#profileContainer {
+            background-color: rgba(10, 10, 25, 200);
+            border: 1px solid rgba(120, 120, 255, 200);
+            border-radius: 16px;
+        }
+
+        QWidget#fieldBlock {
+            background-color: rgba(20, 20, 40, 200);
+            border: 1px solid rgba(120, 120, 255, 140);
+            border-radius: 10px;
+        }
+
+        QLabel#fieldLabel {
+            color: #cfd3ff;
             font-weight: bold;
-            color: white;
         }
-        QLabel#profileSubtitle {
-            color: rgba(255,255,255,0.65);
-        }
+
         QLineEdit#profileInput,
         QComboBox#profileInput {
-            background: white;
-            border-radius: 20px;
-            padding: 12px;
+            background-color: #0f0f1a;
+            border: 1px solid #5a5aff;
+            border-radius: 8px;
+            padding: 8px;
+            color: white;
         }
+
         QPushButton#primaryButton {
             background: #6c63ff;
             color: white;
-            padding: 14px;
-            border-radius: 22px;
+            padding: 12px;
+            border-radius: 14px;
+        }
+
+        QPushButton#primaryButton:hover {
+            background: #7d75ff;
         }
         """)
-

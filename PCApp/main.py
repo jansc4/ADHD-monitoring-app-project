@@ -12,10 +12,7 @@ from PCApp.api_client import APIClient
 
 
 def set_windows_app_id(app_id: str) -> None:
-    """
-    Ustawia AppUserModelID tylko na Windows.
-    Na macOS i Linux funkcja nic nie robi.
-    """
+    
     if platform.system() == "Windows":
         try:
             ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(app_id)
