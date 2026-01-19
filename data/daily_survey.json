@@ -1,0 +1,15 @@
+{
+  "entity": "DailySurvey",
+  "fields": {
+    "id": "uuid",
+    "patient_id": "uuid",
+    "date": "date",
+
+    "took_medication": "boolean",
+    "medication_time": "time",
+
+    "mood_description": "string",
+
+    "created_at": "datetime"
+  }
+}

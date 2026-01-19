@@ -6,6 +6,13 @@ from PyQt6.QtWidgets import (
 )
 from PyQt6.QtCore import Qt, pyqtSignal
 
+import json
+from pathlib import Path
+
+
+BASE_DIR = Path(__file__).resolve().parents[1]
+DOCTORS_PATH = BASE_DIR / "data" / "doctors.json"
+
 
 class RegisterWindow(QWidget):
     back_to_login = pyqtSignal()
@@ -119,6 +126,7 @@ class RegisterWindow(QWidget):
         self._toggle_doctor_select()
 
     # ================= LOGIC =================
+
     def _toggle_doctor_select(self):
         is_patient = self.patient_radio.isChecked()
         self.doctor_label.setVisible(is_patient)
@@ -128,13 +136,35 @@ class RegisterWindow(QWidget):
         self.doctor_combo.clear()
         self.doctor_combo.addItem("— wybierz lekarza —", None)
 
+        doctors = []
+
+        # 1️⃣ spróbuj backend
         try:
             doctors = self.api_client.get("/doctors")
-            for d in doctors:
-                name = f"{d.get('first_name','')} {d.get('last_name','')}".strip()
-                self.doctor_combo.addItem(name, d["id"])
         except Exception as e:
-            print("⚠️ Błąd lekarzy:", e)
+            print("⚠️ Backend doctors failed:", e)
+
+        # 2️⃣ fallback: lokalny JSON (po rejestracji lekarza)
+        if not doctors and DOCTORS_PATH.exists():
+            try:
+                with open(DOCTORS_PATH, "r", encoding="utf-8") as f:
+                    data = json.load(f)
+
+                for email, doc in data.items():
+                    doctors.append({
+                        "id": email,  # tymczasowo email jako id
+                        "first_name": doc.get("first_name", "Lekarz"),
+                        "last_name": doc.get("last_name", email.split("@")[0])
+                    })
+            except Exception as e:
+                print("⚠️ Błąd czytania doctors.json:", e)
+
+        # 3️⃣ wypełnij combobox
+        for d in doctors:
+            name = f"{d['first_name']} {d['last_name']}".strip()
+            self.doctor_combo.addItem(name, d["id"])
+
+        if not doctors:
             self.doctor_combo.addItem("Brak dostępnych lekarzy", None)
 
     def _handle_register(self):

@@ -22,11 +22,14 @@ from PCApp.ui.register_window import RegisterWindow
 
 from PCApp.ui.game_widget import GameView
 from PCApp.ui.patient_dashboard import PatientDashboard
+from PCApp.ui.patient_survey_view import PatientSurveyView
 from PCApp.ui.doctor_dashboard import DoctorDashboard
 from PCApp.ui.doctor_profile_view import DoctorProfileView
 from PCApp.ui.patients_view import PatientsView
 from PCApp.ui.calendar_view import CalendarView
-from PCApp.ui.sidebar import Sidebar
+
+from PCApp.ui.sidebar import Sidebar              # lekarz
+from PCApp.ui.patient_sidebar import PatientSidebar  # pacjent
 
 from PCApp.api_client import APIClient
 
@@ -36,12 +39,15 @@ class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
 
-        self.current_user = None  # jedyne źródło stanu usera
+        self.current_user = None
 
         self.sidebar = None
+        self.patient_sidebar = None
+
         self.doctor_dashboard = None
         self.doctor_profile_view = None
         self.patient_dashboard = None
+        self.patient_survey_view = None
         self.patients_view = None
         self.calendar_view = None
         self.game_view = None
@@ -74,7 +80,6 @@ class MainWindow(QMainWindow):
         self.resize_handler = WindowResizeHandler(self)
         self._setup_tray_icon()
 
-        # CENTRALNY KONTENER – JEDYNE ŹRÓDŁO GRADIENTU
         central = QWidget()
         central.setObjectName("CentralContainer")
         self.setCentralWidget(central)
@@ -118,12 +123,13 @@ class MainWindow(QMainWindow):
         self.current_user = user_data
         role = user_data.get("role")
 
-        # cleanup
         for w in (
             self.sidebar,
+            self.patient_sidebar,
             self.doctor_dashboard,
             self.doctor_profile_view,
             self.patient_dashboard,
+            self.patient_survey_view,
             self.patients_view,
             self.calendar_view
         ):
@@ -132,9 +138,11 @@ class MainWindow(QMainWindow):
                 w.deleteLater()
 
         self.sidebar = None
+        self.patient_sidebar = None
         self.doctor_dashboard = None
         self.doctor_profile_view = None
         self.patient_dashboard = None
+        self.patient_survey_view = None
         self.patients_view = None
         self.calendar_view = None
 
@@ -155,11 +163,26 @@ class MainWindow(QMainWindow):
             self.stacked.setCurrentWidget(self.doctor_dashboard)
 
         else:
+            self.patient_sidebar = PatientSidebar(self)
+            self.content_layout.insertWidget(0, self.patient_sidebar)
+
             self.patient_dashboard = PatientDashboard(user_data, self)
+            self.patient_survey_view = PatientSurveyView(user_data, self)
+
             self.stacked.addWidget(self.patient_dashboard)
+            self.stacked.addWidget(self.patient_survey_view)
+
             self.stacked.setCurrentWidget(self.patient_dashboard)
 
-    # ================= NAWIGACJA (SIDEBAR) =================
+    # ================= NAWIGACJA =================
+
+    def show_patient_dashboard(self):
+        if self.patient_dashboard:
+            self.stacked.setCurrentWidget(self.patient_dashboard)
+
+    def show_patient_survey(self):
+        if self.patient_survey_view:
+            self.stacked.setCurrentWidget(self.patient_survey_view)
 
     def show_doctor_dashboard(self):
         if self.doctor_dashboard:
@@ -182,6 +205,12 @@ class MainWindow(QMainWindow):
             self.sidebar.setParent(None)
             self.sidebar.deleteLater()
             self.sidebar = None
+
+        if self.patient_sidebar:
+            self.patient_sidebar.setParent(None)
+            self.patient_sidebar.deleteLater()
+            self.patient_sidebar = None
+
         self.stacked.setCurrentWidget(self.login_page)
 
     def logout(self):

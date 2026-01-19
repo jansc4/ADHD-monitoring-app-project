@@ -1,0 +1,65 @@
+[
+  {
+    "id": 1,
+    "name": "Concerta 18 mg",
+    "substance": "Methylphenidate",
+    "type": "stymulant",
+    "notes": "Długodziałający, raz dziennie rano"
+  },
+  {
+    "id": 2,
+    "name": "Concerta 36 mg",
+    "substance": "Methylphenidate",
+    "type": "stymulant",
+    "notes": "Długodziałający, raz dziennie rano"
+  },
+  {
+    "id": 3,
+    "name": "Medikinet CR 10 mg",
+    "substance": "Methylphenidate",
+    "type": "stymulant",
+    "notes": "Krótko- i średniodziałający"
+  },
+  {
+    "id": 4,
+    "name": "Medikinet CR 20 mg",
+    "substance": "Methylphenidate",
+    "type": "stymulant",
+    "notes": "Krótko- i średniodziałający"
+  },
+  {
+    "id": 5,
+    "name": "Strattera 25 mg",
+    "substance": "Atomoxetine",
+    "type": "niestymulant",
+    "notes": "Raz dziennie, działanie narastające"
+  },
+  {
+    "id": 6,
+    "name": "Strattera 40 mg",
+    "substance": "Atomoxetine",
+    "type": "niestymulant",
+    "notes": "Raz dziennie, działanie narastające"
+  },
+  {
+    "id": 7,
+    "name": "Bupropion 150 mg",
+    "substance": "Bupropion",
+    "type": "antydepresant",
+    "notes": "Off-label w ADHD"
+  },
+  {
+    "id": 8,
+    "name": "Elvanse 30 mg",
+    "substance": "Lisdexamfetamine",
+    "type": "stymulant",
+    "notes": "Długodziałający"
+  },
+  {
+    "id": 9,
+    "name": "Elvanse 50 mg",
+    "substance": "Lisdexamfetamine",
+    "type": "stymulant",
+    "notes": "Długodziałający"
+  }
+]
