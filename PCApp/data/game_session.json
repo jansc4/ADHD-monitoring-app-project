@@ -1,0 +1,44 @@
+{
+  "type": "focus_game_session",
+  "schema_version": "1.0",
+
+  "session": {
+    "session_id": "uuid-tutaj",
+    "started_at": "2026-01-15T22:47:03.123Z",
+    "ended_at": "2026-01-15T22:50:10.456Z",
+    "duration_ms": 187333
+  },
+
+  "user": {
+    "user_id": "patient@mail.pl",
+    "role": "patient"
+  },
+
+  "game": {
+    "name": "dot_focus",
+    "difficulty": "Średni",
+    "max_trials": 20,
+    "trial_time_limit_ms": 1200,
+    "iti_ms": 350,
+    "no_target_rate": 0.2,
+    "max_distractors_per_trial": 3
+  },
+
+  "summary": {
+    "trials": 20,
+    "hits": 12,
+    "misses": 3,
+    "distractor_clicks": 2,
+    "false_alarms": 2,
+    "no_target_ok": 1,
+    "accuracy": 0.6,
+    "mean_rt_ms": 485.2,
+    "focus_score": 61
+  },
+
+  "trials": [
+    { "trial": 1, "event": "hit", "rt_ms": 410.2 },
+    { "trial": 2, "event": "miss", "rt_ms": null },
+    { "trial": 3, "event": "false_alarm", "rt_ms": 301.8 }
+  ]
+}
