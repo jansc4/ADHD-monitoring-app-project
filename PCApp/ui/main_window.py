@@ -6,8 +6,11 @@ from PyQt6.QtWidgets import (
     QMainWindow, QWidget,
     QVBoxLayout, QHBoxLayout,
     QSystemTrayIcon, QMenu,
-    QApplication, QStackedWidget
+    QApplication, QStackedWidget,
+    QMessageBox
 )
+
+
 from PyQt6.QtGui import QAction
 from PyQt6.QtCore import Qt
 
@@ -21,6 +24,8 @@ from PCApp.ui.login_window import LoginPage
 from PCApp.ui.register_window import RegisterWindow
 
 from PCApp.ui.game_widget import GameView
+from PCApp.ui.game_mode_dialog import GameModeDialog
+
 from PCApp.ui.patient_dashboard import PatientDashboard
 from PCApp.ui.patient_survey_view import PatientSurveyView
 from PCApp.ui.doctor_dashboard import DoctorDashboard
@@ -94,12 +99,18 @@ class MainWindow(QMainWindow):
 
         self.login_page = LoginPage(self.strings, self.api_client, self)
         self.login_page.login_successful.connect(self._handle_login_success)
+        self.login_page.register_requested.connect(self.show_register)
 
         self.register_page = RegisterWindow(self.api_client, self)
         self.register_page.back_to_login.connect(self.show_login)
 
+        self.game_settings = {
+            "difficulty": "Średni",
+            "trials": 20
+        }
         self.game_view = GameView()
         self.game_view.finished.connect(self.on_game_finished)
+        self.game_view.back_requested.connect(lambda: self._try_leave_game(self.show_patient_dashboard))
 
         self.stacked.addWidget(self.login_page)
         self.stacked.addWidget(self.register_page)
@@ -174,15 +185,20 @@ class MainWindow(QMainWindow):
 
             self.stacked.setCurrentWidget(self.patient_dashboard)
 
+    def show_register(self):
+        self.stacked.setCurrentWidget(self.register_page)
+
     # ================= NAWIGACJA =================
 
     def show_patient_dashboard(self):
-        if self.patient_dashboard:
-            self.stacked.setCurrentWidget(self.patient_dashboard)
+        if not self.patient_dashboard:
+            return
+        self._try_leave_game(lambda: self.stacked.setCurrentWidget(self.patient_dashboard))
 
     def show_patient_survey(self):
-        if self.patient_survey_view:
-            self.stacked.setCurrentWidget(self.patient_survey_view)
+        if not self.patient_survey_view:
+            return
+        self._try_leave_game(lambda: self.stacked.setCurrentWidget(self.patient_survey_view))
 
     def show_doctor_dashboard(self):
         if self.doctor_dashboard:
@@ -214,25 +230,166 @@ class MainWindow(QMainWindow):
         self.stacked.setCurrentWidget(self.login_page)
 
     def logout(self):
-        self.current_user = None
-        self.show_login()
+        in_game = (
+                self.stacked.currentWidget() == self.game_view
+                and getattr(self.game_view, "is_running", False)
+        )
+
+        if in_game:
+            self.game_view.pause_game()
+
+        text = "Czy na pewno chcesz się wylogować?"
+        if in_game:
+            text += "\n\nJeśli wyjdziesz teraz, Twój wynik z gry nie zostanie zapisany."
+
+        confirmed = self._confirm_dialog("Wylogować?", text, "Tak", "Nie")
+
+        if confirmed:
+            if in_game:
+                self.game_view.abort_game()
+            self.current_user = None
+            self.show_login()
+        else:
+            if in_game:
+                self.game_view.resume_game()
 
     # ================= GRA =================
 
+    def show_game_menu(self):
+        """Wyświetla okno wyboru trybu i ustawień przed rozpoczęciem gry."""
+        dialog = GameModeDialog(self, initial_settings=self.game_settings)
+
+        dialog.start_btn.clicked.connect(lambda: self._start_game_from_menu(dialog))
+        dialog.survey_btn.clicked.connect(lambda: self._start_survey_from_menu(dialog))
+
+        dialog.settings_saved.connect(self._update_game_settings)
+
+        dialog.exec()
+
+    def apply_game_settings(self, game_view):
+        """Stosuje zapisane ustawienia gry do widoku gry."""
+
+        difficulty = self.game_settings.get("difficulty", "Średni")
+        trials = int(self.game_settings.get("trials", 20))
+
+        game_view.set_difficulty(difficulty)
+
+        game_view.max_trials = trials
+
+        if difficulty == "Łatwy":
+            game_view.trial_time_limit_ms = 1500
+            game_view.iti_ms = 450
+        elif difficulty == "Średni":
+            game_view.trial_time_limit_ms = 1200
+            game_view.iti_ms = 350
+        elif difficulty == "Trudny":
+            game_view.trial_time_limit_ms = 900
+            game_view.iti_ms = 250
+
+    def _update_game_settings(self, s: dict):
+        """"Aktualizuje zapisane ustawienia gry na podstawie danych z menu."""
+        self.game_settings = s
+
     def start_game(self):
+        """Stosuje ustawienia i rozpoczyna nową sesję gry."""
+
+        self.apply_game_settings(self.game_view)
         self.game_view.start_game()
         self.stacked.setCurrentWidget(self.game_view)
 
     def on_game_finished(self, result):
+        """Obsługuje zakończenie gry i przełącza widok po jej zakończeniu."""
+
         print("Wynik gry:", result)
         if self.patient_dashboard:
             self.stacked.setCurrentWidget(self.patient_dashboard)
         else:
             self.stacked.setCurrentWidget(self.login_page)
 
+    def _start_game_from_menu(self, dialog):
+        """Zamyka menu gry i rozpoczyna grę."""
+        dialog.accept()
+        self.start_game()
+
+    def _start_survey_from_menu(self, dialog):
+        """Zamyka menu gry i przechodzi do ankiety pacjenta."""
+        dialog.accept()
+        self.show_patient_survey()
+
+    def _try_leave_game(self, go_to_callable):
+        """Obsługuje próbę opuszczenia gry w trakcie sesji."""
+
+        # jeśli nie jesteśmy w grze lub gra nie trwa – normalnie idź dalej
+        if self.stacked.currentWidget() != self.game_view or not self.game_view.is_running:
+            go_to_callable()
+            return
+
+        # pauzuj i pytaj
+        self.game_view.pause_game()
+
+        confirmed = self._confirm_dialog(
+            "Wyjść z gry?",
+            "Czy na pewno chcesz wyjść? Twój wynik nie zostanie zapisany.",
+            "Tak",
+            "Nie"
+        )
+
+        if confirmed:
+            self.game_view.abort_game()
+            go_to_callable()
+        else:
+            self.game_view.resume_game()
+
+    # ============== OKNO ZAPYTANIA ================
+
+    def _confirm_dialog(self, title: str, text: str, yes_text: str = "Tak", no_text: str = "Nie") -> bool:
+        """Wyświetla okno potwierdzenia z przyciskami Tak/Nie i zwraca decyzję użytkownika."""
+
+        msg = QMessageBox(self)
+        msg.setWindowTitle(title)
+        msg.setText(text)
+        msg.setIcon(QMessageBox.Icon.Question)
+
+        yes_btn = msg.addButton(yes_text, QMessageBox.ButtonRole.YesRole)
+        no_btn = msg.addButton(no_text, QMessageBox.ButtonRole.NoRole)
+        msg.setDefaultButton(no_btn)
+
+        # spójny styl (ciemny, zaokrąglony, podobny do Twojego UI)
+        msg.setStyleSheet("""
+            QMessageBox {
+                background: rgba(10, 10, 40, 0.98);
+                color: white;
+                font-size: 14px;
+            }
+            QLabel {
+                color: rgba(255,255,255,0.92);
+                font-size: 14px;
+            }
+            QPushButton {
+                background: rgba(255,255,255,0.12);
+                border: 1px solid rgba(255,255,255,0.18);
+                padding: 8px 14px;
+                border-radius: 12px;
+                min-width: 90px;
+                font-size: 14px;
+            }
+            QPushButton:hover {
+                background: rgba(255,255,255,0.18);
+            }
+            QPushButton:pressed {
+                background: rgba(255,255,255,0.10);
+            }
+        """)
+
+        msg.exec()
+        return msg.clickedButton() == yes_btn
+
     # ================= USTAWIENIA =================
 
     def show_settings(self):
+        if self.stacked.currentWidget() == self.game_view and getattr(self.game_view, "is_running", False):
+            self.game_view.pause_game()
+
         if not self.settings_dialog:
             self.settings_dialog = SettingsDialog(
                 self.settings, self.strings, self.theme, self

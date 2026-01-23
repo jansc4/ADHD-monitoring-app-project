@@ -122,8 +122,8 @@ class PatientDashboard(QWidget):
     # ================= AKCJE =================
 
     def _start_game(self):
-        if hasattr(self.parent(), "start_game"):
-            self.parent().start_game()
+        if hasattr(self.parent(), "show_game_menu"):
+            self.parent().show_game_menu()
 
     # ================= STYL =================
 

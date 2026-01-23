@@ -33,7 +33,7 @@ class PatientSidebar(QWidget):
 
         self.game_btn = QPushButton("🎮 Gra terapeutyczna")
         self.game_btn.clicked.connect(
-            lambda: self.window().start_game()
+            lambda: self.window().show_game_menu()
         )
 
         self.history_btn = QPushButton("📊 Historia")

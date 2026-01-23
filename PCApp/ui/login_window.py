@@ -1,6 +1,5 @@
 """Strona logowania użytkownika."""
 
-from PCApp.ui.register_window import RegisterWindow
 
 from PyQt6.QtWidgets import (
     QWidget, QVBoxLayout, QLabel,
@@ -29,6 +28,7 @@ def _get_role_from_jwt(token: str) -> Optional[str]:
 
 class LoginPage(QWidget):
     login_successful = pyqtSignal(dict)
+    register_requested = pyqtSignal()
 
     def __init__(self, strings_manager, api_client, parent=None):
         super().__init__(parent)
@@ -152,8 +152,7 @@ class LoginPage(QWidget):
     # ================= REJESTRACJA =================
 
     def _open_register(self):
-        self.register_window = RegisterWindow(self.api_client)
-        self.register_window.show()
+        self.register_requested.emit()
 
     # ================= UI HELPERS =================
 
